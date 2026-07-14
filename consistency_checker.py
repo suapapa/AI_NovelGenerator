@@ -1,28 +1,9 @@
 # consistency_checker.py
 # -*- coding: utf-8 -*-
+import prompt_definitions
 from llm_adapters import create_llm_adapter
 from novel_generator.common import log_llm_io
 
-# ============== 增加对“剧情要点/未解决冲突”进行检查的可选引导 ==============
-CONSISTENCY_PROMPT = """\
-请检查下面的小说设定与最新章节是否存在明显冲突或不一致之处，如有请列出：
-- 小说设定：
-{novel_setting}
-
-- 角色状态（可能包含重要信息）：
-{character_state}
-
-- 前文摘要：
-{global_summary}
-
-- 已记录的未解决冲突或剧情要点：
-{plot_arcs}  # 若为空可能不输出
-
-- 最新章节内容：
-{chapter_text}
-
-如果存在冲突或不一致，请说明；如果在未解决冲突中有被忽略或需要推进的地方，也请提及；否则请返回“无明显冲突”。
-"""
 
 def check_consistency(
     novel_setting: str,
@@ -42,7 +23,7 @@ def check_consistency(
     调用模型做简单的一致性检查。可扩展更多提示或校验规则。
     新增: 会额外检查对“未解决冲突或剧情要点”（plot_arcs）的衔接情况。
     """
-    prompt = CONSISTENCY_PROMPT.format(
+    prompt = prompt_definitions.CONSISTENCY_PROMPT.format(
         novel_setting=novel_setting,
         character_state=character_state,
         global_summary=global_summary,
