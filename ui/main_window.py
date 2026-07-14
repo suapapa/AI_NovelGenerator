@@ -287,7 +287,7 @@ class NovelGeneratorGUI(I18nMixin):
     def handle_exception(self, context: str):
         full_message = f"{context}\n{traceback.format_exc()}"
         logging.error(full_message)
-        self.safe_log(f"{context}。详情已写入 app.log。")
+        self.safe_log(t("log.exception_detail", context=context))
 
     def show_chapter_in_textbox(self, text: str):
         self.chapter_result.delete("0.0", "end")

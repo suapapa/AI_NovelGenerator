@@ -318,7 +318,8 @@ def test_llm_config(
     """
     def task():
         try:
-            log_func("开始测试LLM配置...")
+            from ui.i18n import t
+            log_func(t("msg.llm_test_start"))
             from llm_adapters import create_llm_adapter
 
             llm_adapter = create_llm_adapter(
@@ -334,17 +335,18 @@ def test_llm_config(
             test_prompt = "Please reply 'OK'"
             response = llm_adapter.invoke(test_prompt)
             if response:
-                log_func("✅ LLM配置测试成功！")
-                log_func(f"测试回复: {response}")
+                log_func(t("log.llm_test_ok"))
+                log_func(t("log.llm_test_reply", reply=response))
                 if result_callback:
                     result_callback(True, str(response))
             else:
-                log_func("❌ LLM配置测试失败：未获取到响应")
+                log_func(t("log.llm_test_no_response"))
                 if result_callback:
-                    result_callback(False, "未获取到响应")
+                    result_callback(False, t("log.no_response"))
         except Exception as e:
-            log_func(f"❌ LLM配置测试出错: {str(e)}")
-            handle_exception_func("测试LLM配置时出错")
+            from ui.i18n import t
+            log_func(t("log.llm_test_error", error=str(e)))
+            handle_exception_func(t("log.llm_test_exc"))
             if result_callback:
                 result_callback(False, str(e))
 
@@ -367,7 +369,8 @@ def test_embedding_config(
     """
     def task():
         try:
-            log_func("开始测试Embedding配置...")
+            from ui.i18n import t
+            log_func(t("msg.embedding_test_start"))
             from embedding_adapters import create_embedding_adapter
 
             embedding_adapter = create_embedding_adapter(
@@ -377,21 +380,22 @@ def test_embedding_config(
                 model_name=model_name
             )
 
-            test_text = "测试文本"
+            test_text = "Test text"
             embeddings = embedding_adapter.embed_query(test_text)
             if embeddings and len(embeddings) > 0:
                 dim = len(embeddings)
-                log_func("✅ Embedding配置测试成功！")
-                log_func(f"生成的向量维度: {dim}")
+                log_func(t("log.embedding_test_ok"))
+                log_func(t("log.embedding_test_dim", dim=dim))
                 if result_callback:
                     result_callback(True, str(dim))
             else:
-                log_func("❌ Embedding配置测试失败：未获取到向量")
+                log_func(t("log.embedding_test_no_vector"))
                 if result_callback:
-                    result_callback(False, "未获取到向量")
+                    result_callback(False, t("log.no_vector"))
         except Exception as e:
-            log_func(f"❌ Embedding配置测试出错: {str(e)}")
-            handle_exception_func("测试Embedding配置时出错")
+            from ui.i18n import t
+            log_func(t("log.embedding_test_error", error=str(e)))
+            handle_exception_func(t("log.embedding_test_exc"))
             if result_callback:
                 result_callback(False, str(e))
 

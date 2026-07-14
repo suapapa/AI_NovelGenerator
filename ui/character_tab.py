@@ -66,7 +66,7 @@ def load_character_state(self):
     content = read_file(filename)
     self.character_text.delete("0.0", "end")
     self.character_text.insert("0.0", content)
-    self.log("已加载 character_state.txt 到编辑区。")
+    self.log(t("log.loaded_file", file="character_state.txt"))
 
 
 def save_character_state(self):
@@ -78,4 +78,4 @@ def save_character_state(self):
     filename = os.path.join(filepath, "character_state.txt")
     clear_file_content(filename)
     save_string_to_txt(content, filename)
-    self.log("已保存对 character_state.txt 的修改。")
+    self.log(t("log.saved_file", file="character_state.txt"))

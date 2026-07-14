@@ -66,7 +66,7 @@ def load_chapter_blueprint(self):
     content = read_file(filename)
     self.directory_text.delete("0.0", "end")
     self.directory_text.insert("0.0", content)
-    self.log("已加载 Novel_directory.txt 到编辑区。")
+    self.log(t("log.loaded_file", file="Novel_directory.txt"))
 
 
 def save_chapter_blueprint(self):
@@ -78,4 +78,4 @@ def save_chapter_blueprint(self):
     filename = os.path.join(filepath, "Novel_directory.txt")
     clear_file_content(filename)
     save_string_to_txt(content, filename)
-    self.log("已保存对 Novel_directory.txt 的修改。")
+    self.log(t("log.saved_file", file="Novel_directory.txt"))

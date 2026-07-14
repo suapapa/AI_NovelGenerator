@@ -66,7 +66,7 @@ def load_global_summary(self):
     content = read_file(filename)
     self.summary_text.delete("0.0", "end")
     self.summary_text.insert("0.0", content)
-    self.log("已加载 global_summary.txt 到编辑区。")
+    self.log(t("log.loaded_file", file="global_summary.txt"))
 
 
 def save_global_summary(self):
@@ -78,4 +78,4 @@ def save_global_summary(self):
     filename = os.path.join(filepath, "global_summary.txt")
     clear_file_content(filename)
     save_string_to_txt(content, filename)
-    self.log("已保存对 global_summary.txt 的修改。")
+    self.log(t("log.saved_file", file="global_summary.txt"))

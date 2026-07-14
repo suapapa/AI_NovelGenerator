@@ -52,7 +52,7 @@ def generate_novel_architecture_ui(self):
             # 获取内容指导
             user_guidance = self.user_guide_text.get("0.0", "end").strip()
 
-            self.safe_log("开始生成小说架构...")
+            self.safe_log(t("log.arch_start"))
             Novel_architecture_generate(
                 interface_format=interface_format,
                 api_key=api_key,
@@ -68,9 +68,9 @@ def generate_novel_architecture_ui(self):
                 timeout=timeout_val,
                 user_guidance=user_guidance  # 添加内容指导参数
             )
-            self.safe_log("✅ 小说架构生成完成。请在 'Novel Architecture' 标签页查看或编辑。")
+            self.safe_log(t("log.arch_done"))
         except Exception:
-            self.handle_exception("生成小说架构时出错")
+            self.handle_exception(t("log.arch_error"))
         finally:
             self.enable_button_safe(self.btn_generate_architecture)
     threading.Thread(target=task, daemon=True).start()
@@ -101,7 +101,7 @@ def generate_chapter_blueprint_ui(self):
 
             user_guidance = self.user_guide_text.get("0.0", "end").strip()  # 新增获取用户指导
 
-            self.safe_log("开始生成章节蓝图...")
+            self.safe_log(t("log.blueprint_start"))
             Chapter_blueprint_generate(
                 interface_format=interface_format,
                 api_key=api_key,
@@ -114,9 +114,9 @@ def generate_chapter_blueprint_ui(self):
                 timeout=timeout_val,
                 user_guidance=user_guidance  # 新增参数
             )
-            self.safe_log("✅ 章节蓝图生成完成。请在 'Chapter Blueprint' 标签页查看或编辑。")
+            self.safe_log(t("log.blueprint_done"))
         except Exception:
-            self.handle_exception("生成章节蓝图时出错")
+            self.handle_exception(t("log.blueprint_error"))
         finally:
             self.enable_button_safe(self.btn_generate_directory)
     threading.Thread(target=task, daemon=True).start()
@@ -155,7 +155,7 @@ def generate_chapter_draft_ui(self):
             embedding_model_name = self.embedding_model_name_var.get().strip()
             embedding_k = self.safe_get_int(self.embedding_retrieval_k_var, 4)
 
-            self.safe_log(f"生成第{chap_num}章草稿：准备生成请求提示词...")
+            self.safe_log(t("log.draft_prep", chap=chap_num))
 
             # 调用新添加的 build_chapter_prompt 函数构造初始提示词
             prompt_text = build_chapter_prompt(
@@ -214,7 +214,7 @@ def generate_chapter_draft_ui(self):
                                     with open(file_path, 'r', encoding='utf-8') as f:
                                         role_contents.append(f.read().strip())  # 直接使用文件内容，不添加重复名字
                                 except Exception as e:
-                                    self.safe_log(f"读取角色文件 {file} 失败: {str(e)}")
+                                    self.safe_log(t("log.role_read_fail", file=file, error=str(e)))
                 
                 if role_contents:
                     role_content_str = "\n".join(role_contents)
@@ -287,10 +287,10 @@ def generate_chapter_draft_ui(self):
             event.wait()  # 等待用户操作完成
             edited_prompt = result["prompt"]
             if edited_prompt is None:
-                self.safe_log("❌ 用户取消了草稿生成请求。")
+                self.safe_log(t("log.draft_cancelled"))
                 return
 
-            self.safe_log("开始生成章节草稿...")
+            self.safe_log(t("log.draft_start"))
             from novel_generator.chapter import generate_chapter_draft
             draft_text = generate_chapter_draft(
                 api_key=api_key,
@@ -316,12 +316,12 @@ def generate_chapter_draft_ui(self):
                 custom_prompt_text=edited_prompt  # 使用用户编辑后的提示词
             )
             if draft_text:
-                self.safe_log(f"✅ 第{chap_num}章草稿生成完成。请在左侧查看或编辑。")
+                self.safe_log(t("log.draft_done", chap=chap_num))
                 self.run_on_ui(lambda: self.show_chapter_in_textbox(draft_text))
             else:
-                self.safe_log("⚠️ 本章草稿生成失败或无内容。")
+                self.safe_log(t("log.draft_fail"))
         except Exception:
-            self.handle_exception("生成章节草稿时出错")
+            self.handle_exception(t("log.draft_error"))
         finally:
             self.enable_button_safe(self.btn_generate_chapter)
     threading.Thread(target=task, daemon=True).start()
@@ -371,14 +371,14 @@ def finalize_chapter_ui(self):
             chap_num = self.safe_get_int(self.chapter_num_var, 1)
             word_number = self.safe_get_int(self.word_number_var, 3000)
 
-            self.safe_log(f"开始定稿第{chap_num}章...")
+            self.safe_log(t("log.finalize_start", chap=chap_num))
 
             chapters_dir = os.path.join(filepath, "chapters")
             os.makedirs(chapters_dir, exist_ok=True)
             chapter_file = os.path.join(chapters_dir, f"chapter_{chap_num}.txt")
 
             if should_enrich:
-                self.safe_log("正在扩写章节内容...")
+                self.safe_log(t("log.enriching"))
                 enriched = enrich_chapter_text(
                     chapter_text=edited_text,
                     word_number=word_number,
@@ -392,7 +392,7 @@ def finalize_chapter_ui(self):
                 )
                 edited_text = enriched
                 self.run_on_ui(lambda: self.chapter_result.delete("0.0", "end"))
-                self.run_on_ui(lambda t=edited_text: self.chapter_result.insert("0.0", t))
+                self.run_on_ui(lambda txt=edited_text: self.chapter_result.insert("0.0", txt))
             clear_file_content(chapter_file)
             save_string_to_txt(edited_text, chapter_file)
 
@@ -412,12 +412,12 @@ def finalize_chapter_ui(self):
                 max_tokens=max_tokens,
                 timeout=timeout_val
             )
-            self.safe_log(f"✅ 第{chap_num}章定稿完成（已更新前文摘要、角色状态、向量库）。")
+            self.safe_log(t("log.finalize_done", chap=chap_num))
 
             final_text = read_file(chapter_file)
             self.run_on_ui(lambda: self.show_chapter_in_textbox(final_text))
         except Exception:
-            self.handle_exception("定稿章节时出错")
+            self.handle_exception(t("log.finalize_error"))
         finally:
             self.enable_button_safe(self.btn_finalize_chapter)
     threading.Thread(target=task, daemon=True).start()
@@ -445,10 +445,10 @@ def do_consistency_check(self):
             chapter_text = read_file(chap_file)
 
             if not chapter_text.strip():
-                self.safe_log("⚠️ 当前章节文件为空或不存在，无法审校。")
+                self.safe_log(t("log.review_empty"))
                 return
 
-            self.safe_log("开始一致性审校...")
+            self.safe_log(t("log.review_start"))
             result = check_consistency(
                 novel_setting="",
                 character_state=read_file(os.path.join(filepath, "character_state.txt")),
@@ -463,10 +463,10 @@ def do_consistency_check(self):
                 timeout=timeout,
                 plot_arcs=""
             )
-            self.safe_log("审校结果：")
+            self.safe_log(t("log.review_result"))
             self.safe_log(result)
         except Exception:
-            self.handle_exception("审校时出错")
+            self.handle_exception(t("log.review_error"))
         finally:
             self.enable_button_safe(self.btn_check_consistency)
     threading.Thread(target=task, daemon=True).start()
@@ -615,7 +615,7 @@ def generate_batch_ui(self):
                             with open(file_path, 'r', encoding='utf-8') as f:
                                 role_contents.append(f.read().strip())  # 直接使用文件内容，不添加重复名字
                         except Exception as e:
-                            self.safe_log(f"读取角色文件 {file} 失败: {str(e)}")
+                            self.safe_log(t("log.role_read_fail", file=file, error=str(e)))
         if role_contents:
             role_content_str = "\n".join(role_contents)
             # 更精确的替换逻辑，处理不同情况下的占位符
@@ -679,7 +679,7 @@ def generate_batch_ui(self):
             custom_prompt_text=final_prompt  
         )
         if not draft_text.strip():
-            raise RuntimeError(f"第{i}章草稿生成失败或无内容，已保留原章节文件")
+            raise RuntimeError(t("log.batch_draft_empty", chap=i))
 
         finalize_interface_format = self.loaded_config["llm_configs"][self.final_chapter_llm_var.get()]["interface_format"]
         finalize_api_key = self.loaded_config["llm_configs"][self.final_chapter_llm_var.get()]["api_key"]
@@ -693,7 +693,7 @@ def generate_batch_ui(self):
         os.makedirs(chapters_dir, exist_ok=True)
         chapter_path = os.path.join(chapters_dir, f"chapter_{i}.txt")
         if get_word_count(draft_text) < 0.7 * min and auto_enrich:
-            self.safe_log(f"第{i}章草稿字数 ({get_word_count(draft_text)}) 低于目标字数({min})的70%，正在扩写...")
+            self.safe_log(t("log.batch_enrich", chap=i, count=get_word_count(draft_text), min=min))
             enriched = enrich_chapter_text(
                 chapter_text=draft_text,
                 word_number=word,
@@ -733,12 +733,12 @@ def generate_batch_ui(self):
     def batch_task():
         try:
             for i in range(int(result["start"]), int(result["end"]) + 1):
-                self.safe_log(f"批量生成：正在生成第 {i} 章...")
+                self.safe_log(t("log.batch_generating", chap=i))
                 generate_chapter_batch(self, i, int(result["word"]), int(result["min"]), result["auto_enrich"])
-                self.safe_log(f"批量生成：第 {i} 章完成。")
-            self.safe_log("✅ 批量生成全部完成。")
+                self.safe_log(t("log.batch_chapter_done", chap=i))
+            self.safe_log(t("log.batch_all_done"))
         except Exception:
-            self.handle_exception("批量生成时出错")
+            self.handle_exception(t("log.batch_error"))
 
     threading.Thread(target=batch_task, daemon=True).start()
 
@@ -768,11 +768,11 @@ def import_knowledge_handler(self):
                     except UnicodeDecodeError:
                         continue
                     except Exception as e:
-                        self.safe_log(f"读取文件时发生错误: {str(e)}")
+                        self.safe_log(t("log.file_read_error", error=str(e)))
                         raise
 
                 if content is None:
-                    raise Exception("无法以任何已知编码格式读取文件")
+                    raise Exception(t("log.file_encoding_fail"))
 
                 # 创建临时UTF-8文件
                 import tempfile
@@ -782,7 +782,7 @@ def import_knowledge_handler(self):
                     temp_path = temp.name
 
                 try:
-                    self.safe_log(f"开始导入知识库文件: {selected_file}")
+                    self.safe_log(t("log.knowledge_import_start", path=selected_file))
                     import_knowledge_file(
                         embedding_api_key=emb_api_key,
                         embedding_url=emb_url,
@@ -791,7 +791,7 @@ def import_knowledge_handler(self):
                         file_path=temp_path,
                         filepath=self.filepath_var.get().strip()
                     )
-                    self.safe_log("✅ 知识库文件导入完成。")
+                    self.safe_log(t("log.knowledge_import_done"))
                 finally:
                     # 清理临时文件
                     try:
@@ -800,7 +800,7 @@ def import_knowledge_handler(self):
                         pass
 
             except Exception:
-                self.handle_exception("导入知识库时出错")
+                self.handle_exception(t("log.knowledge_import_error"))
             finally:
                 self.enable_button_safe(self.btn_import_knowledge)
 
@@ -822,9 +822,9 @@ def clear_vectorstore_handler(self):
         second_confirm = messagebox.askyesno(t("msg.clear_vector_2_title"), t("msg.clear_vector_2"))
         if second_confirm:
             if clear_vector_store(filepath):
-                self.log("已清空向量库。")
+                self.log(t("log.vector_cleared"))
             else:
-                self.log(f"未能清空向量库，请关闭程序后手动删除 {filepath} 下的 vectorstore 文件夹。")
+                self.log(t("log.vector_clear_fail", path=filepath))
 
 def show_plot_arcs_ui(self):
     filepath = self.filepath_var.get().strip()

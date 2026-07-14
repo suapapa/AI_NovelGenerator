@@ -91,7 +91,7 @@ def refresh_chapters_list(self):
     filepath = self.filepath_var.get().strip()
     chapters_dir = os.path.join(filepath, "chapters")
     if not os.path.exists(chapters_dir):
-        self.safe_log("尚未找到 chapters 文件夹，请先生成章节或检查保存路径。")
+        self.safe_log(t("log.chapters_dir_missing"))
         self.chapter_select_menu.configure(values=[])
         return
 
@@ -125,7 +125,7 @@ def load_chapter_content(self, chapter_number_str):
     filepath = self.filepath_var.get().strip()
     chapter_file = os.path.join(filepath, "chapters", f"chapter_{chapter_number_str}.txt")
     if not os.path.exists(chapter_file):
-        self.safe_log(f"章节文件 {chapter_file} 不存在！")
+        self.safe_log(t("log.chapter_file_missing", path=chapter_file))
         return
     content = read_file(chapter_file)
     self.chapter_view_text.delete("0.0", "end")
@@ -145,7 +145,7 @@ def save_current_chapter(self):
     content = self.chapter_view_text.get("0.0", "end").strip()
     clear_file_content(chapter_file)
     save_string_to_txt(content, chapter_file)
-    self.safe_log(f"已保存对第 {chapter_number_str} 章的修改。")
+    self.safe_log(t("log.chapter_saved", chap=chapter_number_str))
 
 
 def prev_chapter(self):

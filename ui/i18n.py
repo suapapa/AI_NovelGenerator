@@ -556,6 +556,267 @@ _STRINGS: dict[str, dict[str, str]] = {
         "en": "Language switch failed: {error}",
         "kr": "언어 전환 실패: {error}",
     },
+    # ---- output log messages ----
+    "log.exception_detail": {
+        "zh": "{context}。详情已写入 app.log。",
+        "en": "{context}. Details written to app.log.",
+        "kr": "{context}. 자세한 내용은 app.log에 기록되었습니다.",
+    },
+    "log.arch_start": {
+        "zh": "开始生成小说架构...",
+        "en": "Generating novel architecture...",
+        "kr": "소설 구조 생성 중...",
+    },
+    "log.arch_done": {
+        "zh": "✅ 小说架构生成完成。请在 'Novel Architecture' 标签页查看或编辑。",
+        "en": "✅ Novel architecture generated. Check or edit it in the 'Novel Architecture' tab.",
+        "kr": "✅ 소설 구조 생성 완료. '소설 구조' 탭에서 확인·편집하세요.",
+    },
+    "log.arch_error": {
+        "zh": "生成小说架构时出错",
+        "en": "Error generating novel architecture",
+        "kr": "소설 구조 생성 중 오류",
+    },
+    "log.blueprint_start": {
+        "zh": "开始生成章节蓝图...",
+        "en": "Generating chapter blueprint...",
+        "kr": "챕터 목차 생성 중...",
+    },
+    "log.blueprint_done": {
+        "zh": "✅ 章节蓝图生成完成。请在 'Chapter Blueprint' 标签页查看或编辑。",
+        "en": "✅ Chapter blueprint generated. Check or edit it in the 'Chapter Blueprint' tab.",
+        "kr": "✅ 챕터 목차 생성 완료. '챕터 목차' 탭에서 확인·편집하세요.",
+    },
+    "log.blueprint_error": {
+        "zh": "生成章节蓝图时出错",
+        "en": "Error generating chapter blueprint",
+        "kr": "챕터 목차 생성 중 오류",
+    },
+    "log.draft_prep": {
+        "zh": "生成第{chap}章草稿：准备生成请求提示词...",
+        "en": "Drafting chapter {chap}: preparing request prompt...",
+        "kr": "{chap}장 초안 생성: 요청 프롬프트 준비 중...",
+    },
+    "log.role_read_fail": {
+        "zh": "读取角色文件 {file} 失败: {error}",
+        "en": "Failed to read character file {file}: {error}",
+        "kr": "캐릭터 파일 {file} 읽기 실패: {error}",
+    },
+    "log.draft_cancelled": {
+        "zh": "❌ 用户取消了草稿生成请求。",
+        "en": "❌ Draft generation cancelled by user.",
+        "kr": "❌ 사용자가 초안 생성을 취소했습니다.",
+    },
+    "log.draft_start": {
+        "zh": "开始生成章节草稿...",
+        "en": "Generating chapter draft...",
+        "kr": "챕터 초안 생성 중...",
+    },
+    "log.draft_done": {
+        "zh": "✅ 第{chap}章草稿生成完成。请在左侧查看或编辑。",
+        "en": "✅ Chapter {chap} draft generated. View or edit it on the left.",
+        "kr": "✅ {chap}장 초안 생성 완료. 왼쪽에서 확인·편집하세요.",
+    },
+    "log.draft_fail": {
+        "zh": "⚠️ 本章草稿生成失败或无内容。",
+        "en": "⚠️ Draft generation failed or returned empty content.",
+        "kr": "⚠️ 이번 장 초안 생성 실패 또는 내용 없음.",
+    },
+    "log.draft_error": {
+        "zh": "生成章节草稿时出错",
+        "en": "Error generating chapter draft",
+        "kr": "챕터 초안 생성 중 오류",
+    },
+    "log.finalize_start": {
+        "zh": "开始定稿第{chap}章...",
+        "en": "Finalizing chapter {chap}...",
+        "kr": "{chap}장 최종화 중...",
+    },
+    "log.enriching": {
+        "zh": "正在扩写章节内容...",
+        "en": "Expanding chapter content...",
+        "kr": "챕터 내용 확장 중...",
+    },
+    "log.finalize_done": {
+        "zh": "✅ 第{chap}章定稿完成（已更新前文摘要、角色状态、向量库）。",
+        "en": "✅ Chapter {chap} finalized (summary, character state, and vector store updated).",
+        "kr": "✅ {chap}장 최종화 완료(요약·캐릭터 상태·벡터DB 갱신됨).",
+    },
+    "log.finalize_error": {
+        "zh": "定稿章节时出错",
+        "en": "Error finalizing chapter",
+        "kr": "챕터 최종화 중 오류",
+    },
+    "log.review_empty": {
+        "zh": "⚠️ 当前章节文件为空或不存在，无法审校。",
+        "en": "⚠️ Chapter file is empty or missing; cannot review.",
+        "kr": "⚠️ 현재 챕터 파일이 비어 있거나 없어 검토할 수 없습니다.",
+    },
+    "log.review_start": {
+        "zh": "开始一致性审校...",
+        "en": "Starting consistency review...",
+        "kr": "일관성 검토 시작...",
+    },
+    "log.review_result": {
+        "zh": "审校结果：",
+        "en": "Review result:",
+        "kr": "검토 결과:",
+    },
+    "log.review_error": {
+        "zh": "审校时出错",
+        "en": "Error during consistency review",
+        "kr": "일관성 검토 중 오류",
+    },
+    "log.batch_enrich": {
+        "zh": "第{chap}章草稿字数 ({count}) 低于目标字数({min})的70%，正在扩写...",
+        "en": "Chapter {chap} draft word count ({count}) is below 70% of target ({min}); expanding...",
+        "kr": "{chap}장 초안 글자수({count})가 목표({min})의 70% 미만이라 확장 중...",
+    },
+    "log.batch_generating": {
+        "zh": "批量生成：正在生成第 {chap} 章...",
+        "en": "Batch: generating chapter {chap}...",
+        "kr": "일괄 생성: {chap}장 생성 중...",
+    },
+    "log.batch_chapter_done": {
+        "zh": "批量生成：第 {chap} 章完成。",
+        "en": "Batch: chapter {chap} done.",
+        "kr": "일괄 생성: {chap}장 완료.",
+    },
+    "log.batch_all_done": {
+        "zh": "✅ 批量生成全部完成。",
+        "en": "✅ Batch generation finished.",
+        "kr": "✅ 일괄 생성 모두 완료.",
+    },
+    "log.batch_error": {
+        "zh": "批量生成时出错",
+        "en": "Error during batch generation",
+        "kr": "일괄 생성 중 오류",
+    },
+    "log.batch_draft_empty": {
+        "zh": "第{chap}章草稿生成失败或无内容，已保留原章节文件",
+        "en": "Chapter {chap} draft failed or empty; original chapter file kept",
+        "kr": "{chap}장 초안 생성 실패 또는 내용 없음; 기존 챕터 파일 유지",
+    },
+    "log.file_read_error": {
+        "zh": "读取文件时发生错误: {error}",
+        "en": "Error reading file: {error}",
+        "kr": "파일 읽기 오류: {error}",
+    },
+    "log.file_encoding_fail": {
+        "zh": "无法以任何已知编码格式读取文件",
+        "en": "Could not read file with any known encoding",
+        "kr": "알려진 인코딩으로 파일을 읽을 수 없습니다",
+    },
+    "log.knowledge_import_start": {
+        "zh": "开始导入知识库文件: {path}",
+        "en": "Importing knowledge file: {path}",
+        "kr": "지식베이스 파일 가져오기 시작: {path}",
+    },
+    "log.knowledge_import_done": {
+        "zh": "✅ 知识库文件导入完成。",
+        "en": "✅ Knowledge file import complete.",
+        "kr": "✅ 지식베이스 파일 가져오기 완료.",
+    },
+    "log.knowledge_import_error": {
+        "zh": "导入知识库时出错",
+        "en": "Error importing knowledge base",
+        "kr": "지식베이스 가져오기 중 오류",
+    },
+    "log.vector_cleared": {
+        "zh": "已清空向量库。",
+        "en": "Vector store cleared.",
+        "kr": "벡터DB를 비웠습니다.",
+    },
+    "log.vector_clear_fail": {
+        "zh": "未能清空向量库，请关闭程序后手动删除 {path} 下的 vectorstore 文件夹。",
+        "en": "Could not clear vector store. Close the app and delete the vectorstore folder under {path}.",
+        "kr": "벡터DB를 비우지 못했습니다. 프로그램을 종료한 뒤 {path} 아래 vectorstore 폴더를 직접 삭제하세요.",
+    },
+    "log.chapters_dir_missing": {
+        "zh": "尚未找到 chapters 文件夹，请先生成章节或检查保存路径。",
+        "en": "chapters folder not found. Generate chapters first or check the save path.",
+        "kr": "chapters 폴더를 찾을 수 없습니다. 먼저 챕터를 생성하거나 저장 경로를 확인하세요.",
+    },
+    "log.chapter_file_missing": {
+        "zh": "章节文件 {path} 不存在！",
+        "en": "Chapter file {path} does not exist!",
+        "kr": "챕터 파일 {path}이(가) 없습니다!",
+    },
+    "log.chapter_saved": {
+        "zh": "已保存对第 {chap} 章的修改。",
+        "en": "Saved changes to chapter {chap}.",
+        "kr": "{chap}장 수정을 저장했습니다.",
+    },
+    "log.loaded_file": {
+        "zh": "已加载 {file} 到编辑区。",
+        "en": "Loaded {file} into the editor.",
+        "kr": "{file}을(를) 편집 영역에 불러왔습니다.",
+    },
+    "log.saved_file": {
+        "zh": "已保存对 {file} 的修改。",
+        "en": "Saved changes to {file}.",
+        "kr": "{file} 수정을 저장했습니다.",
+    },
+    "log.llm_test_ok": {
+        "zh": "✅ LLM配置测试成功！",
+        "en": "✅ LLM config test succeeded!",
+        "kr": "✅ LLM 구성 테스트 성공!",
+    },
+    "log.llm_test_reply": {
+        "zh": "测试回复: {reply}",
+        "en": "Test reply: {reply}",
+        "kr": "테스트 응답: {reply}",
+    },
+    "log.llm_test_no_response": {
+        "zh": "❌ LLM配置测试失败：未获取到响应",
+        "en": "❌ LLM config test failed: no response",
+        "kr": "❌ LLM 구성 테스트 실패: 응답 없음",
+    },
+    "log.llm_test_error": {
+        "zh": "❌ LLM配置测试出错: {error}",
+        "en": "❌ LLM config test error: {error}",
+        "kr": "❌ LLM 구성 테스트 오류: {error}",
+    },
+    "log.llm_test_exc": {
+        "zh": "测试LLM配置时出错",
+        "en": "Error while testing LLM config",
+        "kr": "LLM 구성 테스트 중 오류",
+    },
+    "log.embedding_test_ok": {
+        "zh": "✅ Embedding配置测试成功！",
+        "en": "✅ Embedding config test succeeded!",
+        "kr": "✅ Embedding 구성 테스트 성공!",
+    },
+    "log.embedding_test_dim": {
+        "zh": "生成的向量维度: {dim}",
+        "en": "Embedding vector dimension: {dim}",
+        "kr": "생성 벡터 차원: {dim}",
+    },
+    "log.embedding_test_no_vector": {
+        "zh": "❌ Embedding配置测试失败：未获取到向量",
+        "en": "❌ Embedding config test failed: no vector returned",
+        "kr": "❌ Embedding 구성 테스트 실패: 벡터 없음",
+    },
+    "log.embedding_test_error": {
+        "zh": "❌ Embedding配置测试出错: {error}",
+        "en": "❌ Embedding config test error: {error}",
+        "kr": "❌ Embedding 구성 테스트 오류: {error}",
+    },
+    "log.embedding_test_exc": {
+        "zh": "测试Embedding配置时出错",
+        "en": "Error while testing Embedding config",
+        "kr": "Embedding 구성 테스트 중 오류",
+    },
+    "log.no_response": {
+        "zh": "未获取到响应",
+        "en": "No response",
+        "kr": "응답 없음",
+    },
+    "log.no_vector": {
+        "zh": "未获取到向量",
+        "en": "No vector returned",
+        "kr": "벡터 없음",
+    },
     # ---- generation dialogs ----
     "gen.prompt_title": {
         "zh": "当前章节请求提示词（可编辑）",
