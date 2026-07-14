@@ -18,6 +18,7 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 from utils import clear_file_content, save_string_to_txt
+from novel_generator.architecture_format import format_architecture_document
 
 def load_partial_architecture_data(filepath: str) -> dict:
     """
@@ -178,17 +179,15 @@ def Novel_architecture_generate(
     world_building_result = partial_data["world_building_result"]
     plot_arch_result = partial_data["plot_arch_result"]
 
-    final_content = (
-        "#=== 0) 小说设定 ===\n"
-        f"主题：{topic},类型：{genre},篇幅：约{number_of_chapters}章（每章{word_number}字）\n\n"
-        "#=== 1) 核心种子 ===\n"
-        f"{core_seed_result}\n\n"
-        "#=== 2) 角色动力学 ===\n"
-        f"{character_dynamics_result}\n\n"
-        "#=== 3) 世界观 ===\n"
-        f"{world_building_result}\n\n"
-        "#=== 4) 三幕式情节架构 ===\n"
-        f"{plot_arch_result}\n"
+    final_content = format_architecture_document(
+        topic=topic,
+        genre=genre,
+        number_of_chapters=number_of_chapters,
+        word_number=word_number,
+        core_seed_result=core_seed_result,
+        character_dynamics_result=character_dynamics_result,
+        world_building_result=world_building_result,
+        plot_arch_result=plot_arch_result,
     )
 
     arch_file = os.path.join(filepath, "Novel_architecture.txt")
