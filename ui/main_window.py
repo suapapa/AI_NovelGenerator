@@ -1,6 +1,7 @@
 # ui/main_window.py
 # -*- coding: utf-8 -*-
 import os
+import queue
 import threading
 import logging
 import traceback
@@ -10,7 +11,12 @@ from tkinter import filedialog, messagebox
 from .role_library import RoleLibrary
 from llm_adapters import create_llm_adapter
 
-from config_manager import load_config, save_config, test_llm_config, test_embedding_config
+from config_manager import (
+    load_config,
+    save_config,
+    test_llm_config as run_llm_config_test,
+    test_embedding_config as run_embedding_config_test,
+)
 from utils import read_file, save_string_to_txt, clear_file_content
 
 from ui.context_menu import TextWidgetContextMenu
@@ -51,6 +57,10 @@ class NovelGeneratorGUI(I18nMixin):
             pass
         self.master.geometry("1350x840")
         self._ensure_i18n_state()
+        # Thread-safe UI updates: tk.after() from worker threads is unreliable on
+        # macOS (callbacks can be silently dropped). Poll a queue on the main thread.
+        self._ui_queue: queue.Queue = queue.Queue()
+        self._poll_ui_queue()
 
         # --------------- 配置文件路径 ---------------
         self.config_file = "config.json"
@@ -249,14 +259,30 @@ class NovelGeneratorGUI(I18nMixin):
         self.log_text.see("end")
         self.log_text.configure(state="disabled")
 
+    def run_on_ui(self, callback):
+        """Schedule a callable to run on the Tk main thread (safe from workers)."""
+        self._ui_queue.put(callback)
+
+    def _poll_ui_queue(self):
+        try:
+            while True:
+                callback = self._ui_queue.get_nowait()
+                try:
+                    callback()
+                except Exception:
+                    logging.exception("UI queue callback failed")
+        except queue.Empty:
+            pass
+        self.master.after(50, self._poll_ui_queue)
+
     def safe_log(self, message: str):
-        self.master.after(0, lambda: self.log(message))
+        self.run_on_ui(lambda m=message: self.log(m))
 
     def disable_button_safe(self, btn):
-        self.master.after(0, lambda: btn.configure(state="disabled"))
+        self.run_on_ui(lambda: btn.configure(state="disabled"))
 
     def enable_button_safe(self, btn):
-        self.master.after(0, lambda: btn.configure(state="normal"))
+        self.run_on_ui(lambda: btn.configure(state="normal"))
 
     def handle_exception(self, context: str):
         full_message = f"{context}\n{traceback.format_exc()}"
@@ -267,6 +293,12 @@ class NovelGeneratorGUI(I18nMixin):
         self.chapter_result.delete("0.0", "end")
         self.chapter_result.insert("0.0", text)
         self.chapter_result.see("end")
+
+    def _show_config_test_result(self, success: bool, ok_msg: str, fail_msg: str):
+        if success:
+            messagebox.showinfo(t("title.success"), ok_msg)
+        else:
+            messagebox.showerror(t("title.error"), fail_msg)
     
     def test_llm_config(self):
         """
@@ -280,7 +312,20 @@ class NovelGeneratorGUI(I18nMixin):
         max_tokens = self.max_tokens_var.get()
         timeout = self.timeout_var.get()
 
-        test_llm_config(
+        # Log immediately on the UI thread so the click always shows feedback.
+        self.log(t("msg.llm_test_start"))
+
+        def on_result(success, detail):
+            if success:
+                ok_msg = t("msg.llm_test_ok", reply=detail)
+            else:
+                ok_msg = ""
+            fail_msg = t("msg.llm_test_fail", error=detail)
+            self.run_on_ui(
+                lambda s=success, o=ok_msg, f=fail_msg: self._show_config_test_result(s, o, f)
+            )
+
+        run_llm_config_test(
             interface_format=interface_format,
             api_key=api_key,
             base_url=base_url,
@@ -289,7 +334,8 @@ class NovelGeneratorGUI(I18nMixin):
             max_tokens=max_tokens,
             timeout=timeout,
             log_func=self.safe_log,
-            handle_exception_func=self.handle_exception
+            handle_exception_func=self.handle_exception,
+            result_callback=on_result,
         )
 
     def test_embedding_config(self):
@@ -301,13 +347,26 @@ class NovelGeneratorGUI(I18nMixin):
         interface_format = self.embedding_interface_format_var.get().strip()
         model_name = self.embedding_model_name_var.get().strip()
 
-        test_embedding_config(
+        self.log(t("msg.embedding_test_start"))
+
+        def on_result(success, detail):
+            if success:
+                ok_msg = t("msg.embedding_test_ok", dim=detail)
+            else:
+                ok_msg = ""
+            fail_msg = t("msg.embedding_test_fail", error=detail)
+            self.run_on_ui(
+                lambda s=success, o=ok_msg, f=fail_msg: self._show_config_test_result(s, o, f)
+            )
+
+        run_embedding_config_test(
             api_key=api_key,
             base_url=base_url,
             interface_format=interface_format,
             model_name=model_name,
             log_func=self.safe_log,
-            handle_exception_func=self.handle_exception
+            handle_exception_func=self.handle_exception,
+            result_callback=on_result,
         )
     
     def browse_folder(self):
@@ -500,6 +559,4 @@ class NovelGeneratorGUI(I18nMixin):
     save_current_chapter = save_current_chapter
     prev_chapter = prev_chapter
     next_chapter = next_chapter
-    test_llm_config = test_llm_config
-    test_embedding_config = test_embedding_config
     browse_folder = browse_folder

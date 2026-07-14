@@ -298,8 +298,24 @@ def save_config(config_data: dict, config_file: str) -> bool:
         logging.error(f"无法保存配置文件: {e}")
         return False
 
-def test_llm_config(interface_format, api_key, base_url, model_name, temperature, max_tokens, timeout, log_func, handle_exception_func):
-    """测试当前的LLM配置是否可用"""
+def test_llm_config(
+    interface_format,
+    api_key,
+    base_url,
+    model_name,
+    temperature,
+    max_tokens,
+    timeout,
+    log_func,
+    handle_exception_func,
+    result_callback=None,
+):
+    """测试当前的LLM配置是否可用.
+
+    result_callback: optional callable(success: bool, detail: str) invoked from the
+    worker thread when the test finishes. Callers should marshal UI updates
+    (e.g. messagebox) back to the main thread.
+    """
     def task():
         try:
             log_func("开始测试LLM配置...")
@@ -320,16 +336,35 @@ def test_llm_config(interface_format, api_key, base_url, model_name, temperature
             if response:
                 log_func("✅ LLM配置测试成功！")
                 log_func(f"测试回复: {response}")
+                if result_callback:
+                    result_callback(True, str(response))
             else:
                 log_func("❌ LLM配置测试失败：未获取到响应")
+                if result_callback:
+                    result_callback(False, "未获取到响应")
         except Exception as e:
             log_func(f"❌ LLM配置测试出错: {str(e)}")
             handle_exception_func("测试LLM配置时出错")
+            if result_callback:
+                result_callback(False, str(e))
 
     threading.Thread(target=task, daemon=True).start()
 
-def test_embedding_config(api_key, base_url, interface_format, model_name, log_func, handle_exception_func):
-    """测试当前的Embedding配置是否可用"""
+def test_embedding_config(
+    api_key,
+    base_url,
+    interface_format,
+    model_name,
+    log_func,
+    handle_exception_func,
+    result_callback=None,
+):
+    """测试当前的Embedding配置是否可用.
+
+    result_callback: optional callable(success: bool, detail: str) invoked from the
+    worker thread when the test finishes. Callers should marshal UI updates
+    (e.g. messagebox) back to the main thread.
+    """
     def task():
         try:
             log_func("开始测试Embedding配置...")
@@ -345,12 +380,19 @@ def test_embedding_config(api_key, base_url, interface_format, model_name, log_f
             test_text = "测试文本"
             embeddings = embedding_adapter.embed_query(test_text)
             if embeddings and len(embeddings) > 0:
+                dim = len(embeddings)
                 log_func("✅ Embedding配置测试成功！")
-                log_func(f"生成的向量维度: {len(embeddings)}")
+                log_func(f"生成的向量维度: {dim}")
+                if result_callback:
+                    result_callback(True, str(dim))
             else:
                 log_func("❌ Embedding配置测试失败：未获取到向量")
+                if result_callback:
+                    result_callback(False, "未获取到向量")
         except Exception as e:
             log_func(f"❌ Embedding配置测试出错: {str(e)}")
             handle_exception_func("测试Embedding配置时出错")
+            if result_callback:
+                result_callback(False, str(e))
 
     threading.Thread(target=task, daemon=True).start()

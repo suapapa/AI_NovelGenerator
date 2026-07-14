@@ -283,7 +283,7 @@ def generate_chapter_draft_ui(self):
                 # 若用户直接关闭弹窗，则调用 on_cancel 处理
                 dialog.protocol("WM_DELETE_WINDOW", on_cancel)
                 dialog.grab_set()
-            self.master.after(0, create_dialog)
+            self.run_on_ui(create_dialog)
             event.wait()  # 等待用户操作完成
             edited_prompt = result["prompt"]
             if edited_prompt is None:
@@ -317,7 +317,7 @@ def generate_chapter_draft_ui(self):
             )
             if draft_text:
                 self.safe_log(f"✅ 第{chap_num}章草稿生成完成。请在左侧查看或编辑。")
-                self.master.after(0, lambda: self.show_chapter_in_textbox(draft_text))
+                self.run_on_ui(lambda: self.show_chapter_in_textbox(draft_text))
             else:
                 self.safe_log("⚠️ 本章草稿生成失败或无内容。")
         except Exception:
@@ -391,8 +391,8 @@ def finalize_chapter_ui(self):
                     timeout=timeout_val
                 )
                 edited_text = enriched
-                self.master.after(0, lambda: self.chapter_result.delete("0.0", "end"))
-                self.master.after(0, lambda t=edited_text: self.chapter_result.insert("0.0", t))
+                self.run_on_ui(lambda: self.chapter_result.delete("0.0", "end"))
+                self.run_on_ui(lambda t=edited_text: self.chapter_result.insert("0.0", t))
             clear_file_content(chapter_file)
             save_string_to_txt(edited_text, chapter_file)
 
@@ -415,7 +415,7 @@ def finalize_chapter_ui(self):
             self.safe_log(f"✅ 第{chap_num}章定稿完成（已更新前文摘要、角色状态、向量库）。")
 
             final_text = read_file(chapter_file)
-            self.master.after(0, lambda: self.show_chapter_in_textbox(final_text))
+            self.run_on_ui(lambda: self.show_chapter_in_textbox(final_text))
         except Exception:
             self.handle_exception("定稿章节时出错")
         finally:

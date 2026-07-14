@@ -511,6 +511,36 @@ _STRINGS: dict[str, dict[str, str]] = {
         "en": "Failed to save config.",
         "kr": "구성 저장에 실패했습니다.",
     },
+    "msg.llm_test_start": {
+        "zh": "开始测试LLM配置...",
+        "en": "Testing LLM config...",
+        "kr": "LLM 구성 테스트 중...",
+    },
+    "msg.llm_test_ok": {
+        "zh": "LLM配置测试成功！\n回复: {reply}",
+        "en": "LLM config test succeeded!\nReply: {reply}",
+        "kr": "LLM 구성 테스트 성공!\n응답: {reply}",
+    },
+    "msg.llm_test_fail": {
+        "zh": "LLM配置测试失败: {error}",
+        "en": "LLM config test failed: {error}",
+        "kr": "LLM 구성 테스트 실패: {error}",
+    },
+    "msg.embedding_test_start": {
+        "zh": "开始测试Embedding配置...",
+        "en": "Testing Embedding config...",
+        "kr": "Embedding 구성 테스트 중...",
+    },
+    "msg.embedding_test_ok": {
+        "zh": "Embedding配置测试成功！\n向量维度: {dim}",
+        "en": "Embedding config test succeeded!\nVector dimension: {dim}",
+        "kr": "Embedding 구성 테스트 성공!\n벡터 차원: {dim}",
+    },
+    "msg.embedding_test_fail": {
+        "zh": "Embedding配置测试失败: {error}",
+        "en": "Embedding config test failed: {error}",
+        "kr": "Embedding 구성 테스트 실패: {error}",
+    },
     "msg.lang_unknown": {
         "zh": "未知的提示词语言: {label}",
         "en": "Unknown prompt language: {label}",
@@ -742,7 +772,7 @@ def t(key: str, **kwargs: Any) -> str:
     entry = _STRINGS.get(key)
     if not entry:
         return key if not kwargs else key.format(**kwargs)
-    text = entry.get(_current_lang) or entry.get("zh") or key
+    text = entry.get(_current_lang) or entry.get("en") or key
     if kwargs:
         try:
             return text.format(**kwargs)

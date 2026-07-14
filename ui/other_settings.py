@@ -59,9 +59,9 @@ def build_other_settings_tab(self):
                 result = worker()
             except Exception as e:
                 print(e)
-                self.master.after(0, lambda err=e: finish(False, err))
+                self.run_on_ui(lambda err=e: finish(False, err))
                 return
-            self.master.after(0, lambda res=result: finish(True, res))
+            self.run_on_ui(lambda res=result: finish(True, res))
 
         threading.Thread(target=task, daemon=True).start()
 
