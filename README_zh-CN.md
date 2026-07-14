@@ -30,18 +30,20 @@
 
 ## 📑 目录导航
 1. [环境准备](#-环境准备)  
-2. [项目架构](#-项目架构)  
-3. [配置指南](#⚙️-配置指南)  
-4. [运行说明](#🚀-运行说明)  
-5. [使用教程](#📘-使用教程)  
-6. [疑难解答](#❓-疑难解答)  
+2. [安装说明](#-安装说明)  
+3. [运行说明](#-运行说明)  
+4. [项目架构](#-项目架构)  
+5. [配置指南](#⚙️-配置指南)  
+6. [打包方法](#-打包方法)  
+7. [使用教程](#📘-使用教程)  
+8. [疑难解答](#❓-疑难解答)  
 
 ---
 
 ## 🛠 环境准备
 确保满足以下运行条件：
-- **Python 3.9+** 运行环境（推荐3.10-3.12之间）
-- **pip** 包管理工具
+- **macOS** + [Homebrew](https://brew.sh/)
+- **[uv](https://docs.astral.sh/uv/)** 包管理工具
 - 有效API密钥：
   - 云端服务：OpenAI / DeepSeek 等
   - 本地服务：Ollama 等兼容 OpenAI 的接口
@@ -56,43 +58,28 @@
      git clone https://github.com/YILING0013/AI_NovelGenerator
      ```
 
-2. **安装编译工具（可选）**  
-   - 如果对某些包无法正常安装，访问 [Visual Studio Build Tools](https://visualstudio.microsoft.com/zh-hans/visual-cpp-build-tools/) 下载并安装C++编译工具，用于构建部分模块包；
-   - 安装时，默认只包含 MSBuild 工具，需手动勾选左上角列表栏中的 **C++ 桌面开发** 选项。
-
-3. **安装依赖并运行**  
-   - 打开终端，进入项目源文件目录：
+2. **安装系统依赖**  
+   - 使用 Homebrew 安装 GUI（tkinter）所需的 Python Tk：
      ```bash
-     cd AI_NovelGenerator
+     brew install python-tk@3.12
      ```
-   - (可选) 创建并激活虚拟环境：
+   - 若尚未安装 `uv`，一并安装：
      ```bash
-     python -m venv .venv
-     # 如果失败，尝试:
-     # python3 -m venv .venv
-     ```
-     ```
-     # Windows系统:
-     .venv/Scripts/activate
-     ```
-     ```
-     # Linux/Mac系统:
-     source .venv/bin/activate
-     ```
-   - 安装项目依赖：
-     ```bash
-     pip install -r requirements.txt
-     ```
-   - 安装完成后，运行主程序：
-     ```bash
-     python main.py
+     brew install uv
      ```
 
->如果缺失部分依赖，后续**手动执行**
->```bash
->pip install XXX
->```
->进行安装即可
+## 🚀 运行说明
+进入项目目录：
+```bash
+cd AI_NovelGenerator
+```
+
+`uv` 会根据 `pyproject.toml` / `uv.lock` 安装依赖并启动程序：
+```bash
+uv run main.py
+```
+
+执行后，GUI 将会启动，你可以在图形界面中进行各项操作。
 
 ## 🗂 项目架构
 ```
@@ -190,14 +177,7 @@ novel-generator/
 
 ---
 
-## 🚀 运行说明
-### **方式 1：使用 Python 解释器**
-```bash
-python main.py
-```
-执行后，GUI 将会启动，你可以在图形界面中进行各项操作。
-
-### **方式 2：打包为可执行文件**
+## 📦 打包方法
 如果你想在无 Python 环境的机器上使用本工具，可以使用 **PyInstaller** 进行打包：
 
 首先修改第26行的 `customtkinter_dir` 为你的项目目录，然后执行：

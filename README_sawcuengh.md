@@ -30,18 +30,20 @@
 
 ## 📑 Muhloeg Dozdoz
 1. [Gij Doenghbouh Hoengzgvanh](#-gij-doenghbouh-hoengzgvanh)  
-2. [Gij Gveilwd Gouzdiz](#-gij-gveilwd-gouzdiz)  
-3. [Beihci Dozdoz](#⚙️-beihci-dozdoz)  
-4. [Yinzhangz Dozdoz](#🚀-yinzhangz-dozdoz)  
-5. [Sijyungh Dozdoz](#📘-sijyungh-dozdoz)  
-6. [Doenghcaeuq Gijca](#❓-doenghcaeuq-gijca)  
+2. [Ancangh Dozdoz](#-ancangh-dozdoz)  
+3. [Yinzhangz Dozdoz](#-yinzhangz-dozdoz)  
+4. [Gij Gveilwd Gouzdiz](#-gij-gveilwd-gouzdiz)  
+5. [Beihci Dozdoz](#⚙️-beihci-dozdoz)  
+6. [Gienjgouz Dozdoz](#-gienjgouz-dozdoz)  
+7. [Sijyungh Dozdoz](#📘-sijyungh-dozdoz)  
+8. [Doenghcaeuq Gijca](#❓-doenghcaeuq-gijca)  
 
 ---
 
 ## 🛠 Gij Doenghbouh Hoengzgvanh
 Baujcwngz doenghbouh hoengzgvanh neix:
-- **Python 3.9+** Yinzhangz doenghbouh (doenzdoih 3.10-3.12 doengh gij)
-- **pip** Goj Genjli Gunghgiuj
+- **macOS** + [Homebrew](https://brew.sh/)
+- **[uv](https://docs.astral.sh/uv/)** Goj Genjli Gunghgiuj
 - Gij API Mijcaz ndaej ndaej:
   - Yinzdoengh fukvuz: OpenAI / DeepSeek doengh
   - Doenghbouh fukvuz: Ollama doengh doenghcaeuq OpenAI doengh gij giekou
@@ -56,43 +58,28 @@ Baujcwngz doenghbouh hoengzgvanh neix:
      git clone https://github.com/YILING0013/AI_NovelGenerator
      ```
 
-2. **Ancangh Biendoengh Gunghgiuj (hojyungh)**  
-   - Hawj miz gij goj mbouj ndaej ancaenh ancangh, dozdoz [Visual Studio Build Tools](https://visualstudio.microsoft.com/zh-hans/visual-cpp-build-tools/) dauqloh caeuq ancangh C++ biendoengh gunghgiuj, yungh gij gienjgouz gij goj;
-   - Ancangh seiz, doenghbouh caenh miz MSBuild gunghgiuj, mwngz ndaej sijyungh gij doenghlij doengh **C++ Dozdoengh Gienjgouz** doenghcaeuq.
-
-3. **Ancangh Doenghcaeuq Yinzhangz**  
-   - Doengh gij doenghlij, doengh gij gohyenz doenghbouh:
+2. **Ancangh Hijdungh Doenghcaeuq**  
+   - Yungh Homebrew ancangh Python Tk (GUI / tkinter ndaej yungh):
      ```bash
-     cd AI_NovelGenerator
+     brew install python-tk@3.12
      ```
-   - (Hojyungh) Gienjgouz caeuq hoengzgvanh doenghbouh:
+   - Hawj mbouj miz `uv`, doengh ancangh:
      ```bash
-     python -m venv .venv
-     # Hawj mbouj ndaej doengh, doengh:
-     # python3 -m venv .venv
-     ```
-     ```bash
-     # Windows:
-     .venv/Scripts/activate
-     ```
-     ```bash
-     # Linux/Mac:
-     source .venv/bin/activate
-     ```
-   - Ancangh gohyenz doenghcaeuq:
-     ```bash
-     pip install -r requirements.txt
-     ```
-   - Ancangh doengh, yinzhangz doenghlij:
-     ```bash
-     python main.py
+     brew install uv
      ```
 
->Hawj miz gij doenghcaeuq doengh, haujlaiz **sijyungh yinzhangz**
->```bash
->pip install XXX
->```
->Hawj ndaej ancaenh
+## 🚀 Yinzhangz Dozdoz
+Doengh gij gohyenz doenghbouh:
+```bash
+cd AI_NovelGenerator
+```
+
+`uv` doengh `pyproject.toml` / `uv.lock` ancangh doenghcaeuq caeuq yinzhangz:
+```bash
+uv run main.py
+```
+
+Yinzhangz doengh, GUI gyaq doengh, mwngz ndaej doengh gij doenghlij doengh doengh doengh.
 
 ## 🗂 Gij Gveilwd Gouzdiz
 ```
@@ -159,14 +146,7 @@ novel-generator/
 
 ---
 
-## 🚀 Yinzhangz Dozdoz
-### **Moediz 1：Yungh Python Gijgaeg**
-```bash
-python main.py
-```
-Yinzhangz doengh, GUI gyaq doengh, mwngz ndaej doengh gij doenghlij doengh doengh doengh.
-
-### **Moediz 2：Gienjgouz doengh ndaej yungh doenghfaenh**
+## 📦 Gienjgouz Dozdoz
 Hawj mwngz mbouj miz Python doenghbouh ndaej yungh gij doenghgiuj neix, ndaej yungh **PyInstaller** daeuj gienjgouz:
 
 ```bash

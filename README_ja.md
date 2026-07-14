@@ -30,18 +30,20 @@
 
 ## 📑 目次
 1. [環境準備](#-環境準備)
-2. [プロジェクト構成](#-プロジェクト構成)
-3. [設定ガイド](#-設定ガイド)
-4. [実行方法](#-実行方法)
-5. [使い方](#-使い方)
-6. [FAQ](#-faq)
+2. [インストール](#-インストール)
+3. [実行方法](#-実行方法)
+4. [プロジェクト構成](#-プロジェクト構成)
+5. [設定ガイド](#-設定ガイド)
+6. [パッケージング方法](#-パッケージング方法)
+7. [使い方](#-使い方)
+8. [FAQ](#-faq)
 
 ---
 
 ## 🛠 環境準備
 以下の要件を満たす環境を用意してください:
-- **Python 3.9+**（推奨: 3.10–3.12）
-- **pip** パッケージマネージャー
+- **macOS** + [Homebrew](https://brew.sh/)
+- **[uv](https://docs.astral.sh/uv/)** パッケージマネージャー
 - 有効な API キー:
    - クラウドサービス: OpenAI / DeepSeek など
    - ローカルサービス: Ollama などの OpenAI 互換インターフェース
@@ -55,42 +57,28 @@
        git clone https://github.com/YILING0013/AI_NovelGenerator
        ```
 
-2. **ビルドツールのインストール（任意）**
-    - 一部のパッケージがインストールに失敗する場合は、[Visual Studio Build Tools](https://visualstudio.microsoft.com/ja/visual-cpp-build-tools/) から C++ ビルドツールをダウンロード・インストールしてください。
-    - デフォルトではインストーラーに MSBuild のみが含まれます。ワークロードから **C++ によるデスクトップ開発** を必ず選択してください。
-
-3. **依存関係をインストールして実行**
-    - ターミナルを開き、プロジェクトディレクトリに移動します:
+2. **システム依存関係のインストール**
+    - GUI（tkinter）に必要な Python Tk を Homebrew でインストールします:
        ```bash
-       cd AI_NovelGenerator
+       brew install python-tk@3.12
        ```
-    - （任意）仮想環境を作成して有効化します:
+    - `uv` が未インストールの場合は合わせてインストールします:
        ```bash
-       python -m venv .venv
-       # 動作しない場合は次を試してください:
-       # python3 -m venv .venv
-       ```
-       ```
-       # Windows の場合:
-       .venv/Scripts/activate
-       ```
-       ```
-       # Linux / Mac の場合:
-       source .venv/bin/activate
-       ```
-    - プロジェクトの依存関係をインストールします:
-       ```bash
-       pip install -r requirements.txt
-       ```
-    - インストール完了後、メインプログラムを実行します:
-       ```bash
-       python main.py
+       brew install uv
        ```
 
-依存関係が不足している場合は、手動でインストールしてください:
+## 🚀 実行方法
+プロジェクトディレクトリに移動します:
 ```bash
-pip install <パッケージ名>
+cd AI_NovelGenerator
 ```
+
+`uv` が `pyproject.toml` / `uv.lock` に基づき依存関係をインストールして起動します:
+```bash
+uv run main.py
+```
+
+GUI が起動し、対話的に操作できます。
 
 ## 🗂 プロジェクト構成
 ```
@@ -157,14 +145,7 @@ novel-generator/
 
 ---
 
-## 🚀 実行方法
-### 方法 1 — Python で実行
-```bash
-python main.py
-```
-GUI が起動し、対話的に操作できます。
-
-### 方法 2 — 実行ファイルへパッケージング
+## 📦 パッケージング方法
 Python のない環境で実行したい場合は **PyInstaller** でパッケージングします:
 ```bash
 pip install pyinstaller

@@ -30,18 +30,20 @@
 
 ## 📑 목차
 1. [환경 준비](#-환경-준비)  
-2. [프로젝트 구조](#-프로젝트-구조)  
-3. [설정 가이드](#️-설정-가이드)  
-4. [실행 방법](#-실행-방법)  
-5. [사용 가이드](#-사용-가이드)  
-6. [FAQ](#-faq)  
+2. [설치](#-설치)  
+3. [실행 방법](#-실행-방법)  
+4. [프로젝트 구조](#-프로젝트-구조)  
+5. [설정 가이드](#️-설정-가이드)  
+6. [패키징 방법](#-패키징-방법)  
+7. [사용 가이드](#-사용-가이드)  
+8. [FAQ](#-faq)  
 
 ---
 
 ## 🛠 환경 준비
 다음 요구 사항을 충족하는 환경을 준비하세요:
-- **Python 3.9+** (권장: 3.10–3.12)
-- **pip** 패키지 관리자
+- **macOS** + [Homebrew](https://brew.sh/)
+- **[uv](https://docs.astral.sh/uv/)** 패키지 관리자
 - 유효한 API 키:
    - 클라우드 서비스: OpenAI / DeepSeek 등
    - 로컬 서비스: Ollama 또는 OpenAI 호환 인터페이스
@@ -55,43 +57,28 @@
        git clone https://github.com/YILING0013/AI_NovelGenerator
        ```
 
-
-2. **빌드 도구 설치 (선택)**  
-    - 일부 패키지 설치에 실패하면 [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)에서 C++ 빌드 도구를 다운로드하여 설치하세요.
-    - 기본 설치에는 MSBuild만 포함됩니다. 워크로드 목록에서 **C++를 사용한 데스크톱 개발**을 반드시 선택하세요.
-
-3. **의존성 설치 및 실행**  
-    - 터미널을 열고 프로젝트 디렉터리로 이동합니다:
+2. **시스템 의존성 설치**  
+    - GUI(tkinter)에 필요한 Python Tk를 Homebrew로 설치합니다:
        ```bash
-       cd AI_NovelGenerator
+       brew install python-tk@3.12
        ```
-    - (선택) 가상 환경 생성 및 활성화:
+    - uv가 없다면 함께 설치합니다:
        ```bash
-       python -m venv .venv
-       # 동작하지 않으면 다음을 시도하세요:
-       # python3 -m venv .venv
-       ```
-       ```
-       # Windows:
-       .venv/Scripts/activate
-       ```
-       ```
-       # Linux/Mac:
-       source .venv/bin/activate
-       ```
-    - 프로젝트 의존성 설치:
-       ```bash
-       pip install -r requirements.txt
-       ```
-    - 설치 후 메인 프로그램 실행:
-       ```bash
-       python main.py
+       brew install uv
        ```
 
-의존성이 여전히 누락된 경우 수동으로 설치하세요:
+## 🚀 실행 방법
+프로젝트 디렉터리로 이동합니다:
 ```bash
-pip install <패키지명>
+cd AI_NovelGenerator
 ```
+
+`uv`가 `pyproject.toml` / `uv.lock` 기준으로 의존성을 설치하고 프로그램을 실행합니다:
+```bash
+uv run main.py
+```
+
+GUI가 실행되어 대화형으로 사용할 수 있습니다.
 
 
 ## 🗂 프로젝트 구조
@@ -190,14 +177,7 @@ novel-generator/
 
 ---
 
-## 🚀 실행 방법
-### 방법 1 — Python으로 실행
-```bash
-python main.py
-```
-GUI가 실행되어 대화형으로 사용할 수 있습니다.
-
-### 방법 2 — 실행 파일로 빌드
+## 📦 패키징 방법
 Python이 없는 환경에서 실행하려면 **PyInstaller**로 패키징하세요:
 ```bash
 pip install pyinstaller

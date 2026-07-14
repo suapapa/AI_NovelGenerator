@@ -30,18 +30,20 @@
 
 ## 📑 Table of Contents
 1. [Environment Preparation](#-environment-preparation)  
-2. [Project Structure](#-project-structure)  
-3. [Configuration Guide](#⚙️-configuration-guide)  
-4. [Run Instructions](#🚀-run-instructions)  
-5. [User Guide](#📘-user-guide)  
-6. [FAQ](#❓-faq)  
+2. [Installation](#-installation)  
+3. [Run Instructions](#-run-instructions)  
+4. [Project Structure](#-project-structure)  
+5. [Configuration Guide](#⚙️-configuration-guide)  
+6. [Packaging](#-packaging)  
+7. [User Guide](#📘-user-guide)  
+8. [FAQ](#❓-faq)  
 
 ---
 
 ## 🛠 Environment Preparation
 Ensure the environment meets the following requirements:
-- **Python 3.9+** (recommended 3.10–3.12)
-- **pip** package manager
+- **macOS** + [Homebrew](https://brew.sh/)
+- **[uv](https://docs.astral.sh/uv/)** package manager
 - Valid API keys:
    - Cloud services: OpenAI / DeepSeek, etc.
    - Local services: Ollama or other OpenAI-compatible interfaces
@@ -55,44 +57,28 @@ Ensure the environment meets the following requirements:
        git clone https://github.com/YILING0013/AI_NovelGenerator
        ```
 
-
-2. **Install build tools (optional)**  
-    - If some packages fail to install, visit [Visual Studio Build Tools](https://visualstudio.microsoft.com/zh-hans/visual-cpp-build-tools/) to download and install C++ build tools required by some modules.
-    - By default the installer includes MSBuild only; make sure to select **C++ Desktop Development** from the workload list.
-
-3. **Install dependencies and run**  
-    - Open a terminal and change to the project directory:
+2. **Install system dependencies**  
+    - Install Python Tk (required for the GUI / tkinter) via Homebrew:
        ```bash
-       cd AI_NovelGenerator
+       brew install python-tk@3.12
        ```
-    - (Optional) Create and activate virtual environment:
+    - If you don't have `uv` yet, install it as well:
        ```bash
-       python -m venv .venv
-       # if that doesn't work, try:
-       # python3 -m venv .venv
-       ```
-       ```
-       # On Windows:
-       .venv/Scripts/activate
-       ```
-       ```
-       # On Linux/Mac:
-       source .venv/bin/activate
-       ```
-    - Install project dependencies:
-       ```bash
-       pip install -r requirements.txt
-       ```
-    - After installation run the main program:
-       ```bash
-       python main.py
+       brew install uv
        ```
 
-If some dependencies are still missing, manually run:
+## 🚀 Run Instructions
+Change to the project directory:
 ```bash
-pip install <package-name>
+cd AI_NovelGenerator
 ```
-to install them.
+
+`uv` installs dependencies from `pyproject.toml` / `uv.lock` and launches the app:
+```bash
+uv run main.py
+```
+
+This launches the GUI for interactive use.
 
 
 ## 🗂 Project Structure
@@ -191,14 +177,7 @@ See `config.example.json` for a complete example. Current configs are grouped by
 
 ---
 
-## 🚀 Run Instructions
-### Method 1 — Run with Python
-```bash
-python main.py
-```
-This launches the GUI for interactive use.
-
-### Method 2 — Build an executable
+## 📦 Packaging
 If you want to run the tool on machines without Python, package it with **PyInstaller**:
 ```bash
 pip install pyinstaller

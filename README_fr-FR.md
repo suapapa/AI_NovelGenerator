@@ -30,18 +30,20 @@
 
 ## 📑 Table des Matières
 1. [Préparation de l'Environnement](#-préparation-de-lenvironnement)  
-2. [Structure du Projet](#-structure-du-projet)  
-3. [Guide de Configuration](#️-guide-de-configuration)  
-4. [Instructions d'Exécution](#-instructions-dexécution)  
-5. [Guide de l'Utilisateur](#-guide-de-lutilisateur)  
-6. [FAQ](#-faq)  
+2. [Installation](#-installation)  
+3. [Instructions d'Exécution](#-instructions-dexécution)  
+4. [Structure du Projet](#-structure-du-projet)  
+5. [Guide de Configuration](#️-guide-de-configuration)  
+6. [Empaquetage](#-empaquetage)  
+7. [Guide de l'Utilisateur](#-guide-de-lutilisateur)  
+8. [FAQ](#-faq)  
 
 ---
 
 ## 🛠 Préparation de l'Environnement
 Assurez-vous que l'environnement répond aux exigences suivantes :
-- **Python 3.9+** (3.10–3.12 recommandé)
-- Gestionnaire de paquets **pip**
+- **macOS** + [Homebrew](https://brew.sh/)
+- Gestionnaire de paquets **[uv](https://docs.astral.sh/uv/)**
 - Clés API valides :
    - Services cloud : OpenAI / DeepSeek, etc.
    - Services locaux : Ollama ou autres interfaces compatibles OpenAI
@@ -55,44 +57,28 @@ Assurez-vous que l'environnement répond aux exigences suivantes :
        git clone https://github.com/YILING0013/AI_NovelGenerator
        ```
 
-
-2. **Installer les outils de compilation (facultatif)**  
-    - Si certains paquets ne s'installent pas, visitez [Visual Studio Build Tools](https://visualstudio.microsoft.com/zh-hans/visual-cpp-build-tools/) pour télécharger et installer les outils de compilation C++ requis par certains modules.
-    - Par défaut, l'installateur n'inclut que MSBuild ; assurez-vous de sélectionner **Développement Desktop C++** dans la liste des charges de travail.
-
-3. **Installer les dépendances et exécuter**  
-    - Ouvrez un terminal et placez-vous dans le répertoire du projet :
+2. **Installer les dépendances système**  
+    - Installez Python Tk (requis pour l'interface graphique / tkinter) via Homebrew :
        ```bash
-       cd AI_NovelGenerator
+       brew install python-tk@3.12
        ```
-    - (Facultatif) Créer et activer un environnement virtuel :
+    - Si `uv` n'est pas encore installé :
        ```bash
-       python -m venv .venv
-       # si cela ne fonctionne pas, essayez :
-       # python3 -m venv .venv
-       ```
-       ```
-       # Sous Windows :
-       .venv/Scripts/activate
-       ```
-       ```
-       # Sous Linux/Mac :
-       source .venv/bin/activate
-       ```
-    - Installer les dépendances du projet :
-       ```bash
-       pip install -r requirements.txt
-       ```
-    - Après l'installation, exécutez le programme principal :
-       ```bash
-       python main.py
+       brew install uv
        ```
 
-Si certaines dépendances manquent encore, exécutez manuellement :
+## 🚀 Instructions d'Exécution
+Placez-vous dans le répertoire du projet :
 ```bash
-pip install <nom-du-paquet>
+cd AI_NovelGenerator
 ```
-pour les installer.
+
+`uv` installe les dépendances depuis `pyproject.toml` / `uv.lock` et lance l'application :
+```bash
+uv run main.py
+```
+
+Cela lance l'interface graphique pour une utilisation interactive.
 
 
 ## 🗂 Structure du Projet
@@ -160,14 +146,7 @@ novel-generator/
 
 ---
 
-## 🚀 Instructions d'Exécution
-### Méthode 1 — Exécuter avec Python
-```bash
-python main.py
-```
-Cela lance l'interface graphique pour une utilisation interactive.
-
-### Méthode 2 — Créer un exécutable
+## 📦 Empaquetage
 Si vous souhaitez exécuter l'outil sur des machines sans Python, empaquetez-le avec **PyInstaller** :
 ```bash
 pip install pyinstaller
