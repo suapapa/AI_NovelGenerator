@@ -37,10 +37,14 @@ class OpenAIEmbeddingAdapter(BaseEmbeddingAdapter):
     基于 OpenAIEmbeddings（或兼容接口）的适配器
     """
     def __init__(self, api_key: str, base_url: str, model_name: str):
+        # check_embedding_ctx_length=False: send plain text, not tiktoken token IDs.
+        # Token IDs are OpenAI-only; Bifrost / non-OpenAI models (e.g. embeddinggemma)
+        # need raw strings or embeddings/logs will be wrong.
         self._embedding = OpenAIEmbeddings(
             openai_api_key=api_key,
             openai_api_base=ensure_openai_base_url_has_v1(base_url),
-            model=model_name
+            model=model_name,
+            check_embedding_ctx_length=False,
         )
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
