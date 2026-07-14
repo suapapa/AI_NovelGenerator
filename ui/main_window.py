@@ -175,20 +175,28 @@ class NovelGeneratorGUI:
         build_chapters_tab(self)
         build_other_settings_tab(self)
 
-        # Prompt language cycle: 中文 → English → 한국어 → 中文
+        # Prompt language dropdown: 中文 / English / 한국어
         import config_manager
-        next_lang = config_manager.next_prompt_language()
-        next_label = config_manager.PROMPT_LANGUAGE_LABELS[next_lang]
-        self.language_mode_btn = ctk.CTkButton(
+        lang_labels = [
+            config_manager.PROMPT_LANGUAGE_LABELS[code]
+            for code in config_manager.PROMPT_LANGUAGE_CYCLE
+        ]
+        current_label = config_manager.PROMPT_LANGUAGE_LABELS[
+            config_manager.PROMPT_LANGUAGE
+        ]
+        self.prompt_language_var = ctk.StringVar(value=current_label)
+        self.language_mode_menu = ctk.CTkOptionMenu(
             self.master,
-            text=f"→ {next_label}",
+            values=lang_labels,
+            variable=self.prompt_language_var,
+            command=self.on_prompt_language_selected,
             width=110,
-            height=20,
-            command=self.cycle_prompt_language,
+            height=24,
         )
-        self.language_mode_btn.place(relx=0.98, rely=0.015, anchor="ne")
-        # Backward-compatible alias for older references
-        self.english_mode_btn = self.language_mode_btn
+        self.language_mode_menu.place(relx=0.98, rely=0.015, anchor="ne")
+        # Backward-compatible aliases for older references
+        self.language_mode_btn = self.language_mode_menu
+        self.english_mode_btn = self.language_mode_menu
 
 
     # ----------------- 通用辅助函数 -----------------
@@ -390,13 +398,23 @@ class NovelGeneratorGUI:
         
         self._role_lib = RoleLibrary(self.master, save_path, llm_adapter)  # 新增参数
 
-    def cycle_prompt_language(self):
-        """Cycle prompt language: 中文 → English → 한국어 → 中文."""
+    def on_prompt_language_selected(self, selected_label: str):
+        """Apply prompt language chosen from the dropdown."""
         import config_manager
         import importlib
         import prompt_definitions
 
-        next_lang = config_manager.next_prompt_language()
+        label_to_code = {
+            label: code
+            for code, label in config_manager.PROMPT_LANGUAGE_LABELS.items()
+        }
+        next_lang = label_to_code.get(selected_label)
+        if next_lang is None:
+            self.log(f"알 수 없는 프롬프트 언어: {selected_label}")
+            return
+        if next_lang == config_manager.PROMPT_LANGUAGE:
+            return
+
         try:
             config_manager.set_prompt_language(next_lang)
             module_name = config_manager.PROMPT_LANGUAGE_MODULES[next_lang]
@@ -409,14 +427,24 @@ class NovelGeneratorGUI:
                     if not attr.startswith("__"):
                         setattr(prompt_definitions, attr, getattr(source_module, attr))
 
-            upcoming = config_manager.next_prompt_language()
-            upcoming_label = config_manager.PROMPT_LANGUAGE_LABELS[upcoming]
-            self.language_mode_btn.configure(text=f"→ {upcoming_label}")
-
-            current_label = config_manager.PROMPT_LANGUAGE_LABELS[next_lang]
-            self.log(f"프롬프트 언어 전환: {current_label}")
+            self.prompt_language_var.set(
+                config_manager.PROMPT_LANGUAGE_LABELS[next_lang]
+            )
+            self.log(f"프롬프트 언어 전환: {selected_label}")
         except Exception as e:
+            # Revert dropdown to the still-active language on failure
+            self.prompt_language_var.set(
+                config_manager.PROMPT_LANGUAGE_LABELS[config_manager.PROMPT_LANGUAGE]
+            )
             self.log(f"프롬프트 언어 전환 실패: {str(e)}")
+
+    def cycle_prompt_language(self):
+        """Backward-compatible cycle helper; prefers dropdown selection."""
+        import config_manager
+        next_lang = config_manager.next_prompt_language()
+        next_label = config_manager.PROMPT_LANGUAGE_LABELS[next_lang]
+        self.prompt_language_var.set(next_label)
+        self.on_prompt_language_selected(next_label)
 
     def toggle_english_mode(self):
         """Backward-compatible alias for cycle_prompt_language."""
