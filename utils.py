@@ -53,13 +53,14 @@ def save_data_to_json(data: dict, file_path: str) -> bool:
 
 def get_word_count(text: str) -> int:
     """
-    根据 config_manager.IS_ENGLISH 计算字数。
-    如果是英文模式，按单词（空格分隔）计算；
-    如果是中文模式，按字符数计算。
+    根据当前 prompt 语言计算字数。
+    英文模式按单词（空格分隔）计算；中文/韩语模式按字符数计算。
     """
     try:
         import config_manager
-        is_english = getattr(config_manager, 'IS_ENGLISH', False)
+        is_english = getattr(config_manager, "IS_ENGLISH", False) or (
+            getattr(config_manager, "PROMPT_LANGUAGE", "zh") == "en"
+        )
     except ImportError:
         is_english = False
 
@@ -69,5 +70,5 @@ def get_word_count(text: str) -> int:
         # 英文模式：按单词计算
         return len(text.split())
     else:
-        # 中文模式：按字符计算
+        # 中文/韩语模式：按字符计算
         return len(text)

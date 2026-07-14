@@ -7,7 +7,45 @@ import tempfile
 import threading
 from copy import deepcopy
 
+# Prompt language: "zh" | "en" | "kr"
+PROMPT_LANGUAGE = "zh"
+# Backward-compatible alias; kept in sync by set_prompt_language / UI toggle.
 IS_ENGLISH = False
+
+PROMPT_LANGUAGE_LABELS = {
+    "zh": "中文",
+    "en": "English",
+    "kr": "한국어",
+}
+PROMPT_LANGUAGE_CYCLE = ("zh", "en", "kr")
+PROMPT_LANGUAGE_MODULES = {
+    "zh": None,  # reload prompt_definitions (loads prompt_zh.yaml)
+    "en": "prompt_definitions_en",
+    "kr": "prompt_definitions_kr",
+}
+
+
+def set_prompt_language(lang: str) -> str:
+    """Set active prompt language and sync IS_ENGLISH. Returns normalized lang."""
+    global PROMPT_LANGUAGE, IS_ENGLISH
+    if lang not in PROMPT_LANGUAGE_LABELS:
+        raise ValueError(f"Unsupported prompt language: {lang}")
+    PROMPT_LANGUAGE = lang
+    IS_ENGLISH = lang == "en"
+    return lang
+
+
+def next_prompt_language(current: str | None = None) -> str:
+    """Return the next language in the zh → en → kr cycle."""
+    cur = current if current is not None else PROMPT_LANGUAGE
+    order = PROMPT_LANGUAGE_CYCLE
+    try:
+        idx = order.index(cur)
+    except ValueError:
+        idx = 0
+    return order[(idx + 1) % len(order)]
+
+
 _config_lock = threading.RLock()
 
 DEFAULT_LLM_CONFIG_NAME = "DeepSeek V4 Flash"

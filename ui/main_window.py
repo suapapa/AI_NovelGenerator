@@ -175,16 +175,20 @@ class NovelGeneratorGUI:
         build_chapters_tab(self)
         build_other_settings_tab(self)
 
-        # English Mode Button
-        self.english_mode_btn = ctk.CTkButton(
-            self.master, 
-            text="to English mode", 
-            width=100, 
+        # Prompt language cycle: 中文 → English → 한국어 → 中文
+        import config_manager
+        next_lang = config_manager.next_prompt_language()
+        next_label = config_manager.PROMPT_LANGUAGE_LABELS[next_lang]
+        self.language_mode_btn = ctk.CTkButton(
+            self.master,
+            text=f"→ {next_label}",
+            width=110,
             height=20,
-            
-            command=self.toggle_english_mode
+            command=self.cycle_prompt_language,
         )
-        self.english_mode_btn.place(relx=0.98, rely=0.015, anchor="ne")
+        self.language_mode_btn.place(relx=0.98, rely=0.015, anchor="ne")
+        # Backward-compatible alias for older references
+        self.english_mode_btn = self.language_mode_btn
 
 
     # ----------------- 通用辅助函数 -----------------
@@ -386,30 +390,37 @@ class NovelGeneratorGUI:
         
         self._role_lib = RoleLibrary(self.master, save_path, llm_adapter)  # 新增参数
 
-    def toggle_english_mode(self):
+    def cycle_prompt_language(self):
+        """Cycle prompt language: 中文 → English → 한국어 → 中文."""
         import config_manager
         import importlib
         import prompt_definitions
-        
-        config_manager.IS_ENGLISH = not config_manager.IS_ENGLISH
-        
+
+        next_lang = config_manager.next_prompt_language()
         try:
-            if config_manager.IS_ENGLISH:
-                self.english_mode_btn.configure(text="to Chinese mode")
-                # Load English prompts and inject them into prompt_definitions module
-                source_module = importlib.import_module('prompt_definitions_en')
+            config_manager.set_prompt_language(next_lang)
+            module_name = config_manager.PROMPT_LANGUAGE_MODULES[next_lang]
+            if module_name is None:
+                importlib.reload(prompt_definitions)
+            else:
+                source_module = importlib.import_module(module_name)
                 importlib.reload(source_module)
                 for attr in dir(source_module):
-                    if not attr.startswith('__'):
+                    if not attr.startswith("__"):
                         setattr(prompt_definitions, attr, getattr(source_module, attr))
-            else:
-                self.english_mode_btn.configure(text="to English mode")
-                # Reload prompt_definitions to restore original Chinese strings from file
-                importlib.reload(prompt_definitions)
-            
-            self.log(f"已切换到 {'英文' if config_manager.IS_ENGLISH else '中文'} 模式")
+
+            upcoming = config_manager.next_prompt_language()
+            upcoming_label = config_manager.PROMPT_LANGUAGE_LABELS[upcoming]
+            self.language_mode_btn.configure(text=f"→ {upcoming_label}")
+
+            current_label = config_manager.PROMPT_LANGUAGE_LABELS[next_lang]
+            self.log(f"프롬프트 언어 전환: {current_label}")
         except Exception as e:
-            self.log(f"切换模式失败: {str(e)}")
+            self.log(f"프롬프트 언어 전환 실패: {str(e)}")
+
+    def toggle_english_mode(self):
+        """Backward-compatible alias for cycle_prompt_language."""
+        self.cycle_prompt_language()
 
     # ----------------- 将导入的各模块函数直接赋给类方法 -----------------
     generate_novel_architecture_ui = generate_novel_architecture_ui

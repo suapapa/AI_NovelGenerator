@@ -253,11 +253,20 @@ def get_filtered_knowledge_context(
 
         # 使用格式化函数处理章节信息
         import config_manager
-        if config_manager.IS_ENGLISH:
+        lang = getattr(config_manager, "PROMPT_LANGUAGE", "zh")
+        if lang == "en":
             formatted_chapter_info = (
                 f"Current chapter role: {chapter_info.get('chapter_role', '')}\n"
                 f"Core goal: {chapter_info.get('chapter_purpose', '')}\n"
                 f"Key elements: {chapter_info.get('characters_involved', '')} | "
+                f"{chapter_info.get('key_items', '')} | "
+                f"{chapter_info.get('scene_location', '')}"
+            )
+        elif lang == "kr":
+            formatted_chapter_info = (
+                f"이번 장 역할: {chapter_info.get('chapter_role', '')}\n"
+                f"핵심 기능: {chapter_info.get('chapter_purpose', '')}\n"
+                f"주요 요소: {chapter_info.get('characters_involved', '')} | "
                 f"{chapter_info.get('key_items', '')} | "
                 f"{chapter_info.get('scene_location', '')}"
             )

@@ -76,6 +76,47 @@ Chapter summary: The protagonist decodes the archive and changes allegiance."""
             chapter["chapter_summary"],
         )
 
+    def test_parses_korean_chapter_blueprint(self):
+        blueprint = """제5장 - [유리 기록실]
+이번 장 역할: [조사/인물]
+핵심 기능: [숨은 계약 폭로]
+서스펜스: [점진]
+복선: 매설(C실마리)
+반전: ★★★☆☆
+장 요약: [주인공이 기록실을 해독하고 편을 바꾼다]"""
+
+        chapter = get_chapter_info_from_blueprint(blueprint, 5)
+
+        self.assertEqual("유리 기록실", chapter["chapter_title"])
+        self.assertEqual("조사/인물", chapter["chapter_role"])
+        self.assertEqual("숨은 계약 폭로", chapter["chapter_purpose"])
+        self.assertEqual("점진", chapter["suspense_level"])
+        self.assertEqual("매설(C실마리)", chapter["foreshadowing"])
+        self.assertEqual("★★★☆☆", chapter["plot_twist_level"])
+        self.assertEqual(
+            "주인공이 기록실을 해독하고 편을 바꾼다",
+            chapter["chapter_summary"],
+        )
+
+    def test_parses_legacy_korean_chapter_blueprint_labels(self):
+        blueprint = """제6장 - [오래된 지도]
+이번 장 포지션: 전환/세계관
+핵심 역할: 지도의 진짜 용도 공개
+서스펜스 밀도: 폭발
+복선 조작: 회수(B모순)
+인지 전복: ★★★★☆
+이번 장 요약: 지도가 함정임을 알게 된다."""
+
+        chapter = get_chapter_info_from_blueprint(blueprint, 6)
+
+        self.assertEqual("오래된 지도", chapter["chapter_title"])
+        self.assertEqual("전환/세계관", chapter["chapter_role"])
+        self.assertEqual("지도의 진짜 용도 공개", chapter["chapter_purpose"])
+        self.assertEqual("폭발", chapter["suspense_level"])
+        self.assertEqual("회수(B모순)", chapter["foreshadowing"])
+        self.assertEqual("★★★★☆", chapter["plot_twist_level"])
+        self.assertEqual("지도가 함정임을 알게 된다.", chapter["chapter_summary"])
+
     def test_returns_default_info_when_chapter_is_missing(self):
         chapter = get_chapter_info_from_blueprint("第1章 - 起点", 9)
 

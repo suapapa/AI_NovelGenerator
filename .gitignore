@@ -16,3 +16,5 @@ config_test.json
 app.log
 test.py
 /backup
+.agents
+skills-lock.json

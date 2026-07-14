@@ -193,8 +193,14 @@ def generate_chapter_draft_ui(self):
                 text_box.pack(fill="both", expand=True, padx=10, pady=10)
 
                 # 字数统计标签
-                count_prefix = "Words: " if config_manager.IS_ENGLISH else "字数："
-                wordcount_label = ctk.CTkLabel(dialog, text=f"字数：0", font=("Microsoft YaHei", 12))
+                lang = getattr(config_manager, "PROMPT_LANGUAGE", "zh")
+                if lang == "en":
+                    count_prefix = "Words: "
+                elif lang == "kr":
+                    count_prefix = "글자수："
+                else:
+                    count_prefix = "字数："
+                wordcount_label = ctk.CTkLabel(dialog, text=f"{count_prefix}0", font=("Microsoft YaHei", 12))
                 wordcount_label.pack(side="left", padx=(10,0), pady=5)
                 
                 # 插入角色内容
@@ -217,14 +223,24 @@ def generate_chapter_draft_ui(self):
                 if role_contents:
                     role_content_str = "\n".join(role_contents)
                     # 更精确的替换逻辑，处理不同情况下的占位符
-                    role_label = "Core characters:" if config_manager.IS_ENGLISH else "核心人物："
+                    if lang == "en":
+                        role_label = "Core characters:"
+                        search_key = "Core characters"
+                    elif lang == "kr":
+                        role_label = "핵심 인물:"
+                        search_key = "핵심 인물"
+                    else:
+                        role_label = "核心人物："
+                        search_key = "核心人物"
                     placeholder_variations = [
                         "Core characters (may not be specified): {characters_involved}",
                         "Core characters: {characters_involved}",
                         "核心人物(可能未指定)：{characters_involved}",
                         "核心人物：{characters_involved}",
                         "核心人物(可能未指定):{characters_involved}",
-                        "核心人物:{characters_involved}"
+                        "核心人物:{characters_involved}",
+                        "핵심 인물(지정되지 않을 수 있음): {characters_involved}",
+                        "핵심 인물: {characters_involved}",
                     ]
                     
                     for placeholder in placeholder_variations:
@@ -236,7 +252,6 @@ def generate_chapter_draft_ui(self):
                             break
                     else:  # 如果没有找到任何已知占位符变体
                         lines = final_prompt.split('\n')
-                        search_key = "Core characters" if config_manager.IS_ENGLISH else "核心人物"
                         for line_idx, line in enumerate(lines):
                             if search_key in line and (":" in line or "：" in line):
                                 lines[line_idx] = f"{role_label}\n{role_content_str}"
@@ -249,7 +264,7 @@ def generate_chapter_draft_ui(self):
                 def update_word_count(event=None):
                     text = text_box.get("0.0", "end-1c")
                     text_length = get_word_count(text)
-                    wordcount_label.configure(text=f"字数：{text_length}")
+                    wordcount_label.configure(text=f"{count_prefix}{text_length}")
 
                 text_box.bind("<KeyRelease>", update_word_count)
                 text_box.bind("<ButtonRelease>", update_word_count)
@@ -608,25 +623,40 @@ def generate_batch_ui(self):
         if role_contents:
             role_content_str = "\n".join(role_contents)
             # 更精确的替换逻辑，处理不同情况下的占位符
+            import config_manager
+            lang = getattr(config_manager, "PROMPT_LANGUAGE", "zh")
+            if lang == "en":
+                role_label = "Core characters:"
+                search_key = "Core characters"
+            elif lang == "kr":
+                role_label = "핵심 인물:"
+                search_key = "핵심 인물"
+            else:
+                role_label = "核心人物："
+                search_key = "核心人物"
             placeholder_variations = [
+                "Core characters (may not be specified): {characters_involved}",
+                "Core characters: {characters_involved}",
                 "核心人物(可能未指定)：{characters_involved}",
                 "核心人物：{characters_involved}",
                 "核心人物(可能未指定):{characters_involved}",
-                "核心人物:{characters_involved}"
+                "核心人物:{characters_involved}",
+                "핵심 인물(지정되지 않을 수 있음): {characters_involved}",
+                "핵심 인물: {characters_involved}",
             ]
             
             for placeholder in placeholder_variations:
                 if placeholder in final_prompt:
                     final_prompt = final_prompt.replace(
                         placeholder,
-                        f"核心人物：\n{role_content_str}"
+                        f"{role_label}\n{role_content_str}"
                     )
                     break
             else:  # 如果没有找到任何已知占位符变体
                 lines = final_prompt.split('\n')
                 for line_idx, line in enumerate(lines):
-                    if "核心人物" in line and "：" in line:
-                        lines[line_idx] = f"核心人物：\n{role_content_str}"
+                    if search_key in line and (":" in line or "：" in line):
+                        lines[line_idx] = f"{role_label}\n{role_content_str}"
                         break
                 final_prompt = '\n'.join(lines)
         draft_text = generate_chapter_draft(
