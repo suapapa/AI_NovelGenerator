@@ -68,6 +68,7 @@ LEGACY_LLM_CONFIG_NAME_MAP = {
 }
 
 DEFAULT_CONFIG = {
+    "prompt_language": "zh",
     "last_llm_config_name": DEFAULT_LLM_CONFIG_NAME,
     "last_interface_format": "DeepSeek",
     "last_embedding_interface_format": DEFAULT_EMBEDDING_CONFIG_NAME,

@@ -12,9 +12,9 @@ from llm_adapters import create_llm_adapter
 
 from config_manager import load_config, save_config, test_llm_config, test_embedding_config
 from utils import read_file, save_string_to_txt, clear_file_content
-from tooltips import tooltips
 
 from ui.context_menu import TextWidgetContextMenu
+from ui.i18n import I18nMixin, set_language, t, tip
 from ui.main_tab import build_main_tab, build_left_layout, build_right_layout
 from ui.config_tab import build_config_tabview, load_config_btn, save_config_btn
 from ui.novel_params_tab import build_novel_params_area, build_optional_buttons_area
@@ -37,7 +37,7 @@ from ui.chapters_tab import build_chapters_tab, refresh_chapters_list, on_chapte
 from ui.other_settings import build_other_settings_tab
 
 
-class NovelGeneratorGUI:
+class NovelGeneratorGUI(I18nMixin):
     """
     小说生成器的主GUI类，包含所有的界面布局、事件处理、与后端逻辑的交互等。
     """
@@ -50,10 +50,22 @@ class NovelGeneratorGUI:
         except Exception:
             pass
         self.master.geometry("1350x840")
+        self._ensure_i18n_state()
 
         # --------------- 配置文件路径 ---------------
         self.config_file = "config.json"
         self.loaded_config = load_config(self.config_file)
+
+        # Restore persisted prompt/UI language before building widgets
+        import config_manager
+        saved_lang = self.loaded_config.get("prompt_language", "zh")
+        try:
+            config_manager.set_prompt_language(saved_lang)
+            set_language(saved_lang)
+            self._apply_prompt_module(saved_lang)
+        except Exception:
+            config_manager.set_prompt_language("zh")
+            set_language("zh")
 
         llm_configs = self.loaded_config.get("llm_configs", {})
         last_llm_config_name = self.loaded_config.get("last_llm_config_name")
@@ -201,8 +213,27 @@ class NovelGeneratorGUI:
 
     # ----------------- 通用辅助函数 -----------------
     def show_tooltip(self, key: str):
-        info_text = tooltips.get(key, "暂无说明")
-        messagebox.showinfo("参数说明", info_text)
+        messagebox.showinfo(t("title.param_help"), tip(key))
+
+    def _apply_prompt_module(self, lang: str):
+        """Reload prompt_definitions for the given language code."""
+        import importlib
+        import prompt_definitions
+        import config_manager
+
+        module_name = config_manager.PROMPT_LANGUAGE_MODULES[lang]
+        if module_name is None:
+            importlib.reload(prompt_definitions)
+        else:
+            source_module = importlib.import_module(module_name)
+            importlib.reload(source_module)
+            for attr in dir(source_module):
+                if not attr.startswith("__"):
+                    setattr(prompt_definitions, attr, getattr(source_module, attr))
+
+    def _persist_prompt_language(self, lang: str):
+        self.loaded_config["prompt_language"] = lang
+        save_config(self.loaded_config, self.config_file)
 
     def safe_get_int(self, var, default=1):
         try:
@@ -367,17 +398,17 @@ class NovelGeneratorGUI:
             self.char_inv_text.insert("0.0", ", ".join(selected))
             import_window.destroy()
             
-        btn_confirm = ctk.CTkButton(btn_frame, text="选择", command=confirm_selection)
+        btn_confirm = ctk.CTkButton(btn_frame, text=t("params.select"), command=confirm_selection)
         btn_confirm.pack(side="left", padx=20)
         
         # 取消按钮
-        btn_cancel = ctk.CTkButton(btn_frame, text="取消", command=import_window.destroy)
+        btn_cancel = ctk.CTkButton(btn_frame, text=t("params.cancel"), command=import_window.destroy)
         btn_cancel.pack(side="right", padx=20)
 
     def show_role_library(self):
         save_path = self.filepath_var.get().strip()
         if not save_path:
-            messagebox.showwarning("警告", "请先设置保存路径")
+            messagebox.showwarning(t("title.warning"), t("msg.set_filepath"))
             return
         
         # 初始化LLM适配器
@@ -399,10 +430,8 @@ class NovelGeneratorGUI:
         self._role_lib = RoleLibrary(self.master, save_path, llm_adapter)  # 新增参数
 
     def on_prompt_language_selected(self, selected_label: str):
-        """Apply prompt language chosen from the dropdown."""
+        """Apply prompt + UI language chosen from the dropdown."""
         import config_manager
-        import importlib
-        import prompt_definitions
 
         label_to_code = {
             label: code
@@ -410,33 +439,29 @@ class NovelGeneratorGUI:
         }
         next_lang = label_to_code.get(selected_label)
         if next_lang is None:
-            self.log(f"알 수 없는 프롬프트 언어: {selected_label}")
+            self.log(t("msg.lang_unknown", label=selected_label))
             return
         if next_lang == config_manager.PROMPT_LANGUAGE:
             return
 
         try:
             config_manager.set_prompt_language(next_lang)
-            module_name = config_manager.PROMPT_LANGUAGE_MODULES[next_lang]
-            if module_name is None:
-                importlib.reload(prompt_definitions)
-            else:
-                source_module = importlib.import_module(module_name)
-                importlib.reload(source_module)
-                for attr in dir(source_module):
-                    if not attr.startswith("__"):
-                        setattr(prompt_definitions, attr, getattr(source_module, attr))
+            set_language(next_lang)
+            self._apply_prompt_module(next_lang)
+            self._persist_prompt_language(next_lang)
+            self.refresh_ui_language()
 
             self.prompt_language_var.set(
                 config_manager.PROMPT_LANGUAGE_LABELS[next_lang]
             )
-            self.log(f"프롬프트 언어 전환: {selected_label}")
+            self.log(t("msg.lang_switched", label=selected_label))
         except Exception as e:
             # Revert dropdown to the still-active language on failure
+            set_language(config_manager.PROMPT_LANGUAGE)
             self.prompt_language_var.set(
                 config_manager.PROMPT_LANGUAGE_LABELS[config_manager.PROMPT_LANGUAGE]
             )
-            self.log(f"프롬프트 언어 전환 실패: {str(e)}")
+            self.log(t("msg.lang_failed", error=str(e)))
 
     def cycle_prompt_language(self):
         """Backward-compatible cycle helper; prefers dropdown selection."""

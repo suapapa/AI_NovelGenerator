@@ -4,10 +4,12 @@ import os
 import customtkinter as ctk
 from tkinter import messagebox
 from ui.context_menu import TextWidgetContextMenu
+from ui.i18n import t
 from utils import read_file, save_string_to_txt, clear_file_content, get_word_count
 
+
 def build_chapters_tab(self):
-    self.chapters_view_tab = self.tabview.add("Chapters Manage")
+    self.chapters_view_tab = self.track_tab(self.tabview, "chapters", "tab.chapters")
     self.chapters_view_tab.rowconfigure(0, weight=0)
     self.chapters_view_tab.rowconfigure(1, weight=1)
     self.chapters_view_tab.columnconfigure(0, weight=1)
@@ -20,39 +22,70 @@ def build_chapters_tab(self):
     top_frame.columnconfigure(3, weight=0)
     top_frame.columnconfigure(4, weight=1)
 
-    prev_btn = ctk.CTkButton(top_frame, text="<< 上一章", command=self.prev_chapter, font=("Microsoft YaHei", 12))
+    prev_btn = ctk.CTkButton(
+        top_frame, text=t("chapters.prev"), command=self.prev_chapter, font=("Microsoft YaHei", 12)
+    )
     prev_btn.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+    self.bind_i18n(prev_btn, "chapters.prev")
 
-    next_btn = ctk.CTkButton(top_frame, text="下一章 >>", command=self.next_chapter, font=("Microsoft YaHei", 12))
+    next_btn = ctk.CTkButton(
+        top_frame, text=t("chapters.next"), command=self.next_chapter, font=("Microsoft YaHei", 12)
+    )
     next_btn.grid(row=0, column=1, padx=5, pady=5, sticky="w")
+    self.bind_i18n(next_btn, "chapters.next")
 
     self.chapter_select_var = ctk.StringVar(value="")
-    self.chapter_select_menu = ctk.CTkOptionMenu(top_frame, values=[], variable=self.chapter_select_var, command=self.on_chapter_selected, font=("Microsoft YaHei", 12))
+    self.chapter_select_menu = ctk.CTkOptionMenu(
+        top_frame,
+        values=[],
+        variable=self.chapter_select_var,
+        command=self.on_chapter_selected,
+        font=("Microsoft YaHei", 12),
+    )
     self.chapter_select_menu.grid(row=0, column=2, padx=5, pady=5, sticky="w")
 
-    save_btn = ctk.CTkButton(top_frame, text="保存修改", command=self.save_current_chapter, font=("Microsoft YaHei", 12))
+    save_btn = ctk.CTkButton(
+        top_frame, text=t("editor.save"), command=self.save_current_chapter, font=("Microsoft YaHei", 12)
+    )
     save_btn.grid(row=0, column=3, padx=5, pady=5, sticky="w")
+    self.bind_i18n(save_btn, "editor.save")
 
-    refresh_btn = ctk.CTkButton(top_frame, text="刷新章节列表", command=self.refresh_chapters_list, font=("Microsoft YaHei", 12))
+    refresh_btn = ctk.CTkButton(
+        top_frame,
+        text=t("chapters.refresh"),
+        command=self.refresh_chapters_list,
+        font=("Microsoft YaHei", 12),
+    )
     refresh_btn.grid(row=0, column=5, padx=5, pady=5, sticky="e")
+    self.bind_i18n(refresh_btn, "chapters.refresh")
 
-    self.chapters_word_count_label = ctk.CTkLabel(top_frame, text="字数：0", font=("Microsoft YaHei", 12))
-    self.chapters_word_count_label.grid(row=0, column=4, padx=(0,10), sticky="e")
+    self.chapters_word_count_label = ctk.CTkLabel(
+        top_frame, text=t("editor.word_count", count=0), font=("Microsoft YaHei", 12)
+    )
+    self.chapters_word_count_label.grid(row=0, column=4, padx=(0, 10), sticky="e")
 
     self.chapter_view_text = ctk.CTkTextbox(self.chapters_view_tab, wrap="word", font=("Microsoft YaHei", 12))
-    
+
     def update_word_count(event=None):
         text = self.chapter_view_text.get("0.0", "end-1c")
         text_length = get_word_count(text)
-        self.chapters_word_count_label.configure(text=f"字数：{text_length}")
-    
+        self.chapters_word_count_label.configure(text=t("editor.word_count", count=text_length))
+
     self.chapter_view_text.bind("<KeyRelease>", update_word_count)
     self.chapter_view_text.bind("<ButtonRelease>", update_word_count)
+    self.bind_i18n(
+        self.chapters_word_count_label,
+        lambda: t(
+            "editor.word_count",
+            count=get_word_count(self.chapter_view_text.get("0.0", "end-1c")),
+        ),
+    )
     TextWidgetContextMenu(self.chapter_view_text)
     self.chapter_view_text.grid(row=1, column=0, sticky="nsew", padx=5, pady=5, columnspan=6)
 
     self.chapters_list = []
     refresh_chapters_list(self)
+
 
 def refresh_chapters_list(self):
     filepath = self.filepath_var.get().strip()
@@ -81,8 +114,10 @@ def refresh_chapters_list(self):
             self.chapter_select_var.set("")
             self.chapter_view_text.delete("0.0", "end")
 
+
 def on_chapter_selected(self, value):
     load_chapter_content(self, value)
+
 
 def load_chapter_content(self, chapter_number_str):
     if not chapter_number_str:
@@ -96,20 +131,22 @@ def load_chapter_content(self, chapter_number_str):
     self.chapter_view_text.delete("0.0", "end")
     self.chapter_view_text.insert("0.0", content)
 
+
 def save_current_chapter(self):
     chapter_number_str = self.chapter_select_var.get()
     if not chapter_number_str:
-        messagebox.showwarning("警告", "尚未选择章节，无法保存。")
+        messagebox.showwarning(t("title.warning"), t("chapters.no_selection"))
         return
     filepath = self.filepath_var.get().strip()
     if not filepath:
-        messagebox.showwarning("警告", "请先配置保存文件路径")
+        messagebox.showwarning(t("title.warning"), t("msg.set_filepath_plain"))
         return
     chapter_file = os.path.join(filepath, "chapters", f"chapter_{chapter_number_str}.txt")
     content = self.chapter_view_text.get("0.0", "end").strip()
     clear_file_content(chapter_file)
     save_string_to_txt(content, chapter_file)
     self.safe_log(f"已保存对第 {chapter_number_str} 章的修改。")
+
 
 def prev_chapter(self):
     if not self.chapters_list:
@@ -123,7 +160,8 @@ def prev_chapter(self):
         self.chapter_select_var.set(self.chapters_list[new_idx])
         load_chapter_content(self, self.chapters_list[new_idx])
     else:
-        messagebox.showinfo("提示", "已经是第一章了。")
+        messagebox.showinfo(t("title.tip"), t("chapters.first"))
+
 
 def next_chapter(self):
     if not self.chapters_list:
@@ -137,4 +175,4 @@ def next_chapter(self):
         self.chapter_select_var.set(self.chapters_list[new_idx])
         load_chapter_content(self, self.chapters_list[new_idx])
     else:
-        messagebox.showinfo("提示", "已经是最后一章了。")
+        messagebox.showinfo(t("title.tip"), t("chapters.last"))

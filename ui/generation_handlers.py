@@ -19,14 +19,15 @@ from novel_generator import (
     build_chapter_prompt
 )
 from consistency_checker import check_consistency
+from ui.i18n import t
 
 def generate_novel_architecture_ui(self):
     filepath = self.filepath_var.get().strip()
     if not filepath:
-        messagebox.showwarning("警告", "请先选择保存文件路径")
+        messagebox.showwarning(t("title.warning"), t("msg.set_filepath_full"))
         return
 
-    if not messagebox.askyesno("确认", "确定要生成小说架构吗？"):
+    if not messagebox.askyesno(t("title.confirm"), t("msg.confirm_architecture")):
         return
 
     def task():
@@ -77,10 +78,10 @@ def generate_novel_architecture_ui(self):
 def generate_chapter_blueprint_ui(self):
     filepath = self.filepath_var.get().strip()
     if not filepath:
-        messagebox.showwarning("警告", "请先选择保存文件路径")
+        messagebox.showwarning(t("title.warning"), t("msg.set_filepath_full"))
         return
 
-    if not messagebox.askyesno("确认", "确定要生成章节目录吗？"):
+    if not messagebox.askyesno(t("title.confirm"), t("msg.confirm_blueprint")):
         return
 
     def task():
@@ -123,7 +124,7 @@ def generate_chapter_blueprint_ui(self):
 def generate_chapter_draft_ui(self):
     filepath = self.filepath_var.get().strip()
     if not filepath:
-        messagebox.showwarning("警告", "请先配置保存文件路径。")
+        messagebox.showwarning(t("title.warning"), t("msg.set_filepath_config"))
         return
 
     def task():
@@ -187,19 +188,14 @@ def generate_chapter_draft_ui(self):
             def create_dialog():
                 import config_manager
                 dialog = ctk.CTkToplevel(self.master)
-                dialog.title("当前章节请求提示词（可编辑）")
+                dialog.title(t("gen.prompt_title"))
                 dialog.geometry("600x400")
                 text_box = ctk.CTkTextbox(dialog, wrap="word", font=("Microsoft YaHei", 12))
                 text_box.pack(fill="both", expand=True, padx=10, pady=10)
 
                 # 字数统计标签
+                count_prefix = t("word_count_prefix")
                 lang = getattr(config_manager, "PROMPT_LANGUAGE", "zh")
-                if lang == "en":
-                    count_prefix = "Words: "
-                elif lang == "kr":
-                    count_prefix = "글자수："
-                else:
-                    count_prefix = "字数："
                 wordcount_label = ctk.CTkLabel(dialog, text=f"{count_prefix}0", font=("Microsoft YaHei", 12))
                 wordcount_label.pack(side="left", padx=(10,0), pady=5)
                 
@@ -280,9 +276,9 @@ def generate_chapter_draft_ui(self):
                     result["prompt"] = None
                     dialog.destroy()
                     event.set()
-                btn_confirm = ctk.CTkButton(button_frame, text="确认使用", font=("Microsoft YaHei", 12), command=on_confirm)
+                btn_confirm = ctk.CTkButton(button_frame, text=t("gen.confirm_use"), font=("Microsoft YaHei", 12), command=on_confirm)
                 btn_confirm.pack(side="left", padx=10)
-                btn_cancel = ctk.CTkButton(button_frame, text="取消请求", font=("Microsoft YaHei", 12), command=on_cancel)
+                btn_cancel = ctk.CTkButton(button_frame, text=t("gen.cancel_request"), font=("Microsoft YaHei", 12), command=on_cancel)
                 btn_cancel.pack(side="left", padx=10)
                 # 若用户直接关闭弹窗，则调用 on_cancel 处理
                 dialog.protocol("WM_DELETE_WINDOW", on_cancel)
@@ -333,10 +329,10 @@ def generate_chapter_draft_ui(self):
 def finalize_chapter_ui(self):
     filepath = self.filepath_var.get().strip()
     if not filepath:
-        messagebox.showwarning("警告", "请先配置保存文件路径。")
+        messagebox.showwarning(t("title.warning"), t("msg.set_filepath_config"))
         return
 
-    if not messagebox.askyesno("确认", "确定要定稿当前章节吗？"):
+    if not messagebox.askyesno(t("title.confirm"), t("msg.confirm_finalize")):
         return
 
     # 在主线程预先获取文本框内容和参数（tkinter 非线程安全）
@@ -348,8 +344,8 @@ def finalize_chapter_ui(self):
     edited_word_count = get_word_count(edited_text)
     if edited_word_count < 0.7 * word_number:
         should_enrich = messagebox.askyesno(
-            "字数不足",
-            f"当前章节字数 ({edited_word_count}) 低于目标字数({word_number})的70%，是否要尝试扩写？"
+            t("msg.word_shortage_title"),
+            t("msg.word_shortage", count=edited_word_count, target=word_number)
         )
 
     self.disable_button_safe(self.btn_finalize_chapter)
@@ -429,7 +425,7 @@ def finalize_chapter_ui(self):
 def do_consistency_check(self):
     filepath = self.filepath_var.get().strip()
     if not filepath:
-        messagebox.showwarning("警告", "请先配置保存文件路径。")
+        messagebox.showwarning(t("title.warning"), t("msg.set_filepath_config"))
         return
 
     def task():
@@ -498,31 +494,31 @@ def generate_batch_ui(self):
         dialog.grid_columnconfigure(3, weight=1)
         
         # 起始章节
-        ctk.CTkLabel(dialog, text="起始章节:").grid(row=0, column=0, padx=10, pady=10, sticky="w")
+        ctk.CTkLabel(dialog, text=t("gen.batch_start")).grid(row=0, column=0, padx=10, pady=10, sticky="w")
         entry_start = ctk.CTkEntry(dialog)
         entry_start.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
         entry_start.insert(0, str(num))
         
         # 结束章节
-        ctk.CTkLabel(dialog, text="结束章节:").grid(row=0, column=2, padx=10, pady=10, sticky="w")
+        ctk.CTkLabel(dialog, text=t("gen.batch_end")).grid(row=0, column=2, padx=10, pady=10, sticky="w")
         entry_end = ctk.CTkEntry(dialog)
         entry_end.grid(row=0, column=3, padx=10, pady=10, sticky="ew")
         
         # 期望字数
-        ctk.CTkLabel(dialog, text="期望字数:").grid(row=1, column=0, padx=10, pady=10, sticky="w")
+        ctk.CTkLabel(dialog, text=t("gen.batch_expect")).grid(row=1, column=0, padx=10, pady=10, sticky="w")
         entry_word = ctk.CTkEntry(dialog)
         entry_word.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
         entry_word.insert(0, self.word_number_var.get())
         
         # 最低字数
-        ctk.CTkLabel(dialog, text="最低字数:").grid(row=1, column=2, padx=10, pady=10, sticky="w")
+        ctk.CTkLabel(dialog, text=t("gen.batch_min")).grid(row=1, column=2, padx=10, pady=10, sticky="w")
         entry_min = ctk.CTkEntry(dialog)
         entry_min.grid(row=1, column=3, padx=10, pady=10, sticky="ew")
         entry_min.insert(0, self.word_number_var.get())
 
         # 自动扩写选项
         auto_enrich_bool = ctk.BooleanVar()
-        auto_enrich_bool_ck = ctk.CTkCheckBox(dialog, text="低于最低字数时自动扩写", variable=auto_enrich_bool)
+        auto_enrich_bool_ck = ctk.CTkCheckBox(dialog, text=t("gen.batch_auto_enrich"), variable=auto_enrich_bool)
         auto_enrich_bool_ck.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="w")
 
         result = {"start": None, "end": None, "word": None, "min": None, "auto_enrich": None, "close": False}
@@ -530,7 +526,7 @@ def generate_batch_ui(self):
         def on_confirm():
             nonlocal result
             if not entry_start.get() or not entry_end.get() or not entry_word.get() or not entry_min.get():
-                messagebox.showwarning("警告", "请填写完整信息。")
+                messagebox.showwarning(t("title.warning"), t("msg.fill_complete"))
                 return
 
             result = {
@@ -554,8 +550,8 @@ def generate_batch_ui(self):
         button_frame.grid_columnconfigure(0, weight=1)
         button_frame.grid_columnconfigure(1, weight=1)
         
-        ctk.CTkButton(button_frame, text="确认", command=on_confirm).grid(row=0, column=0, padx=10, pady=10, sticky="e")
-        ctk.CTkButton(button_frame, text="取消", command=on_cancel).grid(row=0, column=1, padx=10, pady=10, sticky="w")
+        ctk.CTkButton(button_frame, text=t("gen.ok"), command=on_confirm).grid(row=0, column=0, padx=10, pady=10, sticky="e")
+        ctk.CTkButton(button_frame, text=t("gen.cancel"), command=on_cancel).grid(row=0, column=1, padx=10, pady=10, sticky="w")
         
         dialog.protocol("WM_DELETE_WINDOW", on_cancel)
         dialog.transient(self.master)
@@ -749,7 +745,7 @@ def generate_batch_ui(self):
 
 def import_knowledge_handler(self):
     selected_file = filedialog.askopenfilename(
-        title="选择要导入的知识库文件",
+        title=t("msg.import_knowledge_title"),
         filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")]
     )
     if selected_file:
@@ -813,17 +809,17 @@ def import_knowledge_handler(self):
             thread.start()
         except Exception as e:
             self.enable_button_safe(self.btn_import_knowledge)
-            messagebox.showerror("错误", f"线程启动失败: {str(e)}")
+            messagebox.showerror(t("title.error"), t("msg.thread_start_failed", error=str(e)))
 
 def clear_vectorstore_handler(self):
     filepath = self.filepath_var.get().strip()
     if not filepath:
-        messagebox.showwarning("警告", "请先配置保存文件路径。")
+        messagebox.showwarning(t("title.warning"), t("msg.set_filepath_config"))
         return
 
-    first_confirm = messagebox.askyesno("警告", "确定要清空本地向量库吗？此操作不可恢复！")
+    first_confirm = messagebox.askyesno(t("title.warning"), t("msg.clear_vector_1"))
     if first_confirm:
-        second_confirm = messagebox.askyesno("二次确认", "你确定真的要删除所有向量数据吗？此操作不可恢复！")
+        second_confirm = messagebox.askyesno(t("msg.clear_vector_2_title"), t("msg.clear_vector_2"))
         if second_confirm:
             if clear_vector_store(filepath):
                 self.log("已清空向量库。")
@@ -833,12 +829,12 @@ def clear_vectorstore_handler(self):
 def show_plot_arcs_ui(self):
     filepath = self.filepath_var.get().strip()
     if not filepath:
-        messagebox.showwarning("警告", "请先在主Tab中设置保存文件路径")
+        messagebox.showwarning(t("title.warning"), t("msg.set_filepath_main"))
         return
 
     plot_arcs_file = os.path.join(filepath, "plot_arcs.txt")
     if not os.path.exists(plot_arcs_file):
-        messagebox.showinfo("剧情要点", "当前还未生成任何剧情要点或冲突记录。")
+        messagebox.showinfo(t("msg.plot_empty_title"), t("msg.plot_empty"))
         return
 
     arcs_text = read_file(plot_arcs_file).strip()
