@@ -132,6 +132,13 @@ _STRINGS: dict[str, dict[str, str]] = {
     "params.time": {"zh": "时间压力:", "en": "Time pressure:", "kr": "시간 압박:"},
     "params.select": {"zh": "选择", "en": "Select", "kr": "선택"},
     "params.cancel": {"zh": "取消", "en": "Cancel", "kr": "취소"},
+    "params.novel_characters": {"zh": "小说角色", "en": "Novel Characters", "kr": "소설 캐릭터"},
+    "title.import_characters": {"zh": "导入角色信息", "en": "Import Characters", "kr": "캐릭터 정보 가져오기"},
+    "msg.no_characters_found": {
+        "zh": "未找到角色。\n请在角色库中添加角色，或者先完成“Step2. 生成/分析”以生成 `character_state.txt`。",
+        "en": "No characters found.\nPlease add characters in the Role Library, or complete Step 2 to generate `character_state.txt` first.",
+        "kr": "캐릭터를 찾을 수 없습니다.\n역할 라이브러리에서 캐릭터를 추가하거나, Step 2를 진행하여 `character_state.txt`를 생성해 주세요.",
+    },
     # ---- optional buttons ----
     "opt.consistency": {"zh": "一致性审校", "en": "Consistency", "kr": "일관성 검토"},
     "opt.knowledge": {"zh": "导入知识库", "en": "Import Knowledge", "kr": "지식베이스 가져오기"},

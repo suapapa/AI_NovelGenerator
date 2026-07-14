@@ -535,12 +535,20 @@ class RoleLibrary:
         for line in response.split('\n'):
             line = line.rstrip()
             
-            # 检测角色名称行（兼容中英文冒号和前后空格）
-            role_match = re.match(r'^\s*([\u4e00-\u9fa5a-zA-Z0-9]+)\s*[:：]\s*$', line)
+            # 检测角色名称行（兼容中英文冒号和前后空格，并支持韩文）
+            exclude_headers = {
+                "주요 인물 관계망", "신규 등장 인물", "신규 등장인물", "물품", "능력", "상태", "촉발 또는 심화된 사건",
+                "主要角色间关系网", "新出场角色", "物品", "能力", "状态", "触发或加深的事件",
+                "Main character relationship network", "New characters", "Items", "Abilities", "Status", "Triggered or deepened events",
+                "임시 캐릭터 라이브러리", "临时角色库"
+            }
+            role_match = re.match(r'^\s*([\u4e00-\u9fa5a-zA-Z0-9\uac00-\ud7a3\u1100-\u11ff\u3130-\u318f\s\-_]+)\s*[:：]\s*$', line)
             if role_match:
-                current_role = role_match.group(1).strip()
-                roles.append({'name': current_role, 'attributes': {}})
-                continue
+                name = role_match.group(1).strip()
+                if name not in exclude_headers:
+                    current_role = name
+                    roles.append({'name': current_role, 'attributes': {}})
+                    continue
                 
             if not current_role:
                 continue

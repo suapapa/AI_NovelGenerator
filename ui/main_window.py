@@ -377,7 +377,7 @@ class NovelGeneratorGUI(I18nMixin):
     def show_character_import_window(self):
         """显示角色导入窗口"""
         import_window = ctk.CTkToplevel(self.master)
-        import_window.title("导入角色信息")
+        import_window.title(t("title.import_characters"))
         import_window.geometry("600x500")
         import_window.transient(self.master)  # 设置为父窗口的临时窗口
         import_window.grab_set()  # 保持窗口在顶层
@@ -394,13 +394,74 @@ class NovelGeneratorGUI(I18nMixin):
         role_lib_path = os.path.join(self.filepath_var.get().strip(), "角色库")
         self.selected_roles = []  # 存储选中的角色名称
         
-        # 动态加载角色分类
-        if os.path.exists(role_lib_path):
-            # 配置网格布局参数
-            scroll_frame.columnconfigure(0, weight=1)
-            max_roles_per_row = 4
-            current_row = 0
+        # 1. 优先加载 character_state.txt 中的角色 (소설 캐릭터)
+        project_path = self.filepath_var.get().strip()
+        character_state_path = os.path.join(project_path, "character_state.txt")
+        state_characters = []
+        
+        exclude_headers = {
+            "주요 인물 관계망", "신규 등장 인물", "신규 등장인물", "물품", "능력", "상태", "촉발 또는 심화된 사건",
+            "主要角色间关系网", "新出场角色", "物品", "能力", "状态", "触发或加深的事件",
+            "Main character relationship network", "New characters", "Items", "Abilities", "Status", "Triggered or deepened events",
+            "임시 캐릭터 라이브러리", "临时角色库"
+        }
+        
+        if os.path.exists(character_state_path):
+            try:
+                import re
+                with open(character_state_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                for line in content.split("\n"):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    if line.startswith(('-', '│', '├', '└', '●')):
+                        continue
+                    m = re.match(r'^([\u4e00-\u9fa5a-zA-Z0-9\uac00-\ud7a3\u1100-\u11ff\u3130-\u318f\s\-_]+)\s*[:：]\s*$', line)
+                    if m:
+                        name = m.group(1).strip()
+                        if name not in exclude_headers:
+                            if name not in state_characters:
+                                state_characters.append(name)
+            except Exception as e:
+                print(f"Error parsing character_state.txt: {e}")
+
+        # 配置网格布局参数
+        scroll_frame.columnconfigure(0, weight=1)
+        max_roles_per_row = 4
+        current_row = 0
+
+        # 显示 character_state.txt 里的角色
+        if state_characters:
+            category_frame = ctk.CTkFrame(scroll_frame)
+            category_frame.grid(row=current_row, column=0, sticky="w", pady=(10,5), padx=5)
             
+            category_label = ctk.CTkLabel(category_frame, text=f"【{t('params.novel_characters')}】", 
+                                        font=("Microsoft YaHei", 12, "bold"))
+            category_label.grid(row=0, column=0, padx=(0,10), sticky="w")
+            
+            role_count = 0
+            row_num = 0
+            col_num = 1
+            
+            for role_name in state_characters:
+                chk = ctk.CTkCheckBox(category_frame, text=role_name)
+                chk.grid(row=row_num, column=col_num, padx=5, pady=2, sticky="w")
+                self.selected_roles.append((chk, role_name))
+                
+                role_count += 1
+                col_num += 1
+                if col_num > max_roles_per_row:
+                    col_num = 1
+                    row_num += 1
+            
+            current_row += 1
+            separator = ctk.CTkFrame(scroll_frame, height=1, fg_color="gray")
+            separator.grid(row=current_row, column=0, sticky="ew", pady=5)
+            current_row += 1
+
+        # 2. 动态加载角色库分类
+        if os.path.exists(role_lib_path):
             for category in os.listdir(role_lib_path):
                 category_path = os.path.join(role_lib_path, category)
                 if os.path.isdir(category_path):
@@ -446,6 +507,16 @@ class NovelGeneratorGUI(I18nMixin):
                     separator.grid(row=current_row, column=0, sticky="ew", pady=5)
                     current_row += 1
         
+        # 3. 如果没找到任何角色，显示提示信息
+        if not self.selected_roles:
+            empty_label = ctk.CTkLabel(
+                scroll_frame, 
+                text=t("msg.no_characters_found"),
+                font=("Microsoft YaHei", 12),
+                justify="center"
+            )
+            empty_label.pack(fill="both", expand=True, padx=20, pady=40)
+
         # 底部按钮框架
         btn_frame = ctk.CTkFrame(main_frame)
         btn_frame.pack(fill="x", pady=10)
